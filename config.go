@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 )
@@ -18,19 +19,26 @@ func getConfigPath() string {
 	return filepath.Join(homeDir, ".alec.json")
 }
 
-func loadConfig() *Config {
+func loadConfig() (*Config, error) {
 	configPath := getConfigPath()
 	
-	// Try to read existing config file
-	if data, err := os.ReadFile(configPath); err == nil {
-		var config Config
-		if json.Unmarshal(data, &config) == nil {
-			return &config
-		}
+	// Check if config file exists
+	if _, err := os.Stat(configPath); os.IsNotExist(err) {
+		return nil, fmt.Errorf("config file not found at %s\n\nPlease create a config file with the following format:\n{\n  \"root_dir\": \"/path/to/your/directory\"\n}", configPath)
 	}
 	
-	// Return default config if file doesn't exist or can't be read
-	return getDefaultConfig()
+	// Try to read existing config file
+	data, err := os.ReadFile(configPath)
+	if err != nil {
+		return nil, fmt.Errorf("error reading config file: %v", err)
+	}
+	
+	var config Config
+	if err := json.Unmarshal(data, &config); err != nil {
+		return nil, fmt.Errorf("error parsing config file: %v", err)
+	}
+	
+	return &config, nil
 }
 
 func (c *Config) Save() error {

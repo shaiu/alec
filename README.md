@@ -7,7 +7,7 @@ A directory navigator and shell script executor with a beautiful TUI interface.
 - **Directory Navigation**: Browse directories with an intuitive interface
 - **Shell Script Execution**: Execute `.sh`, `.bash`, and `.zsh` scripts directly
 - **Breadcrumb Navigation**: See your current path and navigate back easily
-- **Configurable Root Directory**: Set custom root directory via command line flag
+- **Configurable Root Directory**: Set custom root directory via config file
 - **Beautiful TUI**: Built with Charm libraries for a polished experience
 
 ## Installation
@@ -18,6 +18,24 @@ go build -o alec
 
 ## Usage
 
+### Configuration
+
+Before running Alec, you need to create a configuration file at `~/.alec.json`:
+
+```json
+{
+  "root_dir": "/path/to/your/scripts"
+}
+```
+
+Example configuration:
+
+```json
+{
+  "root_dir": "/Users/yourusername/scripts"
+}
+```
+
 ### Basic Usage
 
 Navigate directories and execute scripts:
@@ -26,14 +44,7 @@ Navigate directories and execute scripts:
 ./alec
 ```
 
-### Custom Root Directory
-
-Specify a custom directory to navigate:
-
-```bash
-./alec --dir /path/to/your/scripts
-./alec -d ~/my-scripts
-```
+If no configuration file exists, Alec will display an error message with instructions on how to create one.
 
 ### Controls
 
@@ -49,9 +60,18 @@ The application will show:
 - 🚀 **Shell Scripts** (red) - Execute them
 - Hidden files (starting with `.`) are ignored
 
-## Configuration
+## Configuration File
 
-By default, Alec uses the directory where the binary is located as the root directory. You can override this with the `--dir` flag.
+Alec requires a configuration file at `~/.alec.json` to specify the root directory for navigation. The configuration file uses JSON format and supports the following options:
+
+- `root_dir`: The directory path to use as the root for navigation
+
+Example:
+```json
+{
+  "root_dir": "/Users/yourusername/development/scripts"
+}
+```
 
 ## Development
 

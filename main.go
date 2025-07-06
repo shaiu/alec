@@ -14,7 +14,11 @@ var rootCmd = &cobra.Command{
 	Short: "A directory navigator and script executor",
 	Long:  "Navigate directories and execute shell scripts with a beautiful TUI interface",
 	Run: func(cmd *cobra.Command, args []string) {
-		config := loadConfig()
+		config, err := loadConfig()
+		if err != nil {
+			fmt.Printf("Error: %v\n", err)
+			os.Exit(1)
+		}
 		
 		p := tea.NewProgram(initialModelWithConfig(config))
 		if _, err := p.Run(); err != nil {
