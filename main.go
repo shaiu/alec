@@ -20,7 +20,7 @@ var rootCmd = &cobra.Command{
 			os.Exit(1)
 		}
 		
-		p := tea.NewProgram(initialModelWithConfig(config))
+		p := tea.NewProgram(initialModelWithConfig(config), tea.WithAltScreen())
 		if _, err := p.Run(); err != nil {
 			fmt.Printf("Error starting program: %v", err)
 			os.Exit(1)
