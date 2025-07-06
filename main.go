@@ -9,19 +9,12 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var (
-	rootDir string
-)
-
 var rootCmd = &cobra.Command{
 	Use:   "alec",
 	Short: "A directory navigator and script executor",
 	Long:  "Navigate directories and execute shell scripts with a beautiful TUI interface",
 	Run: func(cmd *cobra.Command, args []string) {
-		config := getDefaultConfig()
-		if rootDir != "" {
-			config.RootDir = rootDir
-		}
+		config := loadConfig()
 		
 		p := tea.NewProgram(initialModelWithConfig(config))
 		if _, err := p.Run(); err != nil {
@@ -29,10 +22,6 @@ var rootCmd = &cobra.Command{
 			os.Exit(1)
 		}
 	},
-}
-
-func init() {
-	rootCmd.Flags().StringVarP(&rootDir, "dir", "d", "", "Root directory to navigate (default: directory where alec binary is located)")
 }
 
 func main() {
