@@ -30,3 +30,9 @@ go.work.sum
 # Editor/IDE
 # .idea/
 # .vscode/
+
+# Application binary
+alec
+
+# Scripts folder (local scripts not part of the project)
+scripts/
