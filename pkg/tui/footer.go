@@ -36,7 +36,6 @@ func NewFooterModel() FooterModel {
 	style := FooterStyle{
 		Base: lipgloss.NewStyle().
 			Foreground(lipgloss.Color("#F8F8F2")).
-			Background(lipgloss.Color("#44475A")).
 			Padding(0, 2),
 		Help: lipgloss.NewStyle().
 			Foreground(lipgloss.Color("#6272A4")),

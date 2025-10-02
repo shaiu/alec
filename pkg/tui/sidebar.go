@@ -241,6 +241,7 @@ func (m SidebarModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.scripts = msg.Scripts
 		m.err = nil
 		m.selectedIndex = 0
+		m.scrollOffset = 0 // Reset scroll to show first item
 
 		// Set initial current path to first directory or root
 		if len(msg.Directories) > 0 {
@@ -342,10 +343,9 @@ func (m SidebarModel) View() string {
 	}
 
 	// Force sidebar to specific width regardless of m.width to prevent expansion
-	actualWidth := min(34, m.width) // Never exceed 24 characters
+	actualWidth := min(24, m.width) // Never exceed 24 characters
 	return baseStyle.
 		Width(actualWidth).
-		Height(m.height - baseStyle.GetVerticalFrameSize()).
 		Render(content.String())
 }
 
@@ -584,8 +584,14 @@ func (m SidebarModel) GetDebugInfo() string {
 }
 
 func (m *SidebarModel) updateLayout() {
-	usableHeight := m.height - 6
-	m.maxVisibleRows = max(1, usableHeight)
+	// Account for content that takes up space:
+	// - Title line: "📁 Scripts" (1 line)
+	// - Empty line after title: (1 line)
+	// - Potential scroll info at bottom: (1 line)
+	// - Extra buffer for borders/padding: (2 lines)
+	// Total overhead: 5 lines
+	usableHeight := m.height - 5
+	m.maxVisibleRows = max(1, usableHeight) // Ensure at least 1 row is visible
 	m.updateScroll()
 }
 

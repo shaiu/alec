@@ -249,12 +249,18 @@ func (m *RootModel) View() string {
 		mainContent,
 	)
 
-	return lipgloss.JoinVertical(
+	app := lipgloss.JoinVertical(
 		lipgloss.Left,
 		header,
 		content,
 		footer,
 	)
+
+	// Apply padding using lipgloss margin instead of padding to avoid clipping
+	containerStyle := lipgloss.NewStyle().
+		Margin(1, 2) // 1 line top/bottom, 2 chars left/right margin
+
+	return containerStyle.Render(app)
 }
 
 // Layout constants for responsive design
@@ -276,11 +282,12 @@ func (m *RootModel) updateLayout() {
 		return
 	}
 
-	// Set a reasonable fixed sidebar width that shows script names properly
+	// Account for margin (1 line top + 1 line bottom = 2 lines total)
+	// and component heights when calculating available content height
 	sidebarWidth := 24 // Wide enough for script names, narrow enough for main content
 
 	mainContentWidth := m.width - sidebarWidth
-	contentHeight := m.height - HeaderHeight - FooterHeight
+	contentHeight := m.height - HeaderHeight - FooterHeight - 2 // -2 for top/bottom margin
 
 	// Ensure minimum content height
 	if contentHeight < MinContentHeight {
@@ -306,15 +313,15 @@ func (m *RootModel) handleSmallTerminal() {
 	// For very small terminals, use a simplified single-column layout
 	if m.width < 60 {
 		// Hide sidebar in extremely narrow terminals
-		m.sidebar.SetSize(0, m.height-4)
-		m.mainContent.SetSize(m.width, m.height-4)
+		m.sidebar.SetSize(0, m.height-6) // -4 for header/footer, -2 for margin
+		m.mainContent.SetSize(m.width, m.height-6) // -4 for header/footer, -2 for margin
 		m.header.SetSize(m.width, 2)
 		m.footer.SetSize(m.width, 2)
 	} else {
 		// Use minimum sizes for small but usable terminals
 		sidebarWidth := MinSidebarWidth
 		mainContentWidth := m.width - sidebarWidth
-		contentHeight := max(MinContentHeight, m.height-4)
+		contentHeight := max(MinContentHeight, m.height-6) // -4 for header/footer, -2 for margin
 
 		m.sidebar.SetSize(sidebarWidth, contentHeight)
 		m.mainContent.SetSize(mainContentWidth, contentHeight)
