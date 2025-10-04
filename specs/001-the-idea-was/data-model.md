@@ -56,7 +56,7 @@ Represents a directory node in the hierarchical script organization.
 - Root directories configured in Configuration entity
 
 ### ExecutionSession
-Represents a single script execution instance with runtime state.
+Represents a single script execution instance. Note: In current implementation, the TUI exits when a script is executed, so execution sessions are primarily used in CLI mode.
 
 **Fields**:
 - `SessionID`: Unique session identifier (UUID)
@@ -67,14 +67,12 @@ Represents a single script execution instance with runtime state.
 - `Duration`: Total execution time
 - `ExitCode`: Process exit code (nil if running)
 - `Output`: Array of output lines (stdout + stderr combined)
-- `MaxOutputLines`: Buffer limit for output lines
+- `ErrorMessage`: Error message if execution failed
 - `Context`: Cancellation context for process control
-- `PID`: Process ID (nil if not started)
 
 **Validation Rules**:
 - SessionID must be unique across all sessions
 - Script reference must be valid and executable
-- Output buffer must not exceed MaxOutputLines limit
 - Status transitions must follow valid state machine
 - StartTime must be set before EndTime
 
@@ -83,6 +81,8 @@ Represents a single script execution instance with runtime state.
 Pending → Running → [Completed | Failed | Timeout]
 Running → Cancelled → Failed
 ```
+
+**Note on TUI Execution**: When executing from the TUI, the application exits and the script runs with full terminal control, so session tracking is not maintained. ExecutionSession is primarily used for CLI mode (`alec run`) execution.
 
 ### Configuration
 Represents user and system configuration settings.
@@ -116,29 +116,28 @@ Represents user and system configuration settings.
 Represents the current state of the Terminal User Interface.
 
 **Fields**:
-- `CurrentView`: Active view (browser, executor, help)
+- `CurrentView`: Active view (welcome, script details)
 - `SelectedScript`: Currently selected script
-- `SelectedDirectory`: Currently selected directory in tree
+- `CurrentPath`: Current directory being viewed
 - `TerminalWidth`: Current terminal width
 - `TerminalHeight`: Current terminal height
-- `SidebarWidth`: Calculated sidebar width
-- `MainWidth`: Calculated main content width
-- `FocusedComponent`: Currently focused UI component
-- `NavigationHistory`: Stack of previous selections
-- `SearchQuery`: Current search/filter query
-- `ShowHidden`: Boolean flag for hidden file display
+- `SidebarWidth`: Fixed at 24 characters to prevent layout shifts
+- `MainWidth`: Calculated as terminal width minus sidebar width
+- `FocusedComponent`: Currently focused UI component (sidebar always focused in v1)
+- `SearchMode`: Boolean indicating if search mode is active
+- `SearchQuery`: Current search/filter query string
+- `FilteredScripts`: Scripts matching current search within directory context
 
 **Validation Rules**:
 - Terminal dimensions must be positive
 - Width calculations must sum to terminal width
 - SelectedScript must be valid if not nil
-- FocusedComponent must be valid component identifier
-- SearchQuery must be valid regex if used as filter
+- SearchQuery must be valid string for case-insensitive filtering
 
 **Calculated Fields**:
-- SidebarWidth: Based on golden ratio (~38% of terminal width)
-- MainWidth: Remaining width after sidebar and borders
-- IsResponsive: Boolean indicating if terminal is large enough
+- SidebarWidth: Fixed at 24 characters (not calculated)
+- MainWidth: TerminalWidth - SidebarWidth - borders/padding
+- IsResponsive: Boolean indicating if terminal is large enough (minimum 80x24)
 
 ## Entity Relationships
 
@@ -166,7 +165,12 @@ UIState.SelectedScript → ExecutionSession.Create() → ExecutionSession.Execut
 
 ### Navigation Flow
 ```
-UIState.FocusedComponent → Directory.Select() → UIState.SelectedDirectory → Script.Filter() → UIState.SelectedScript
+UIState.CurrentPath → Directory.BuildItems() → UIState.NavigationItems → User Selection → UIState.SelectedScript
+```
+
+### Search Flow
+```
+User presses '/' → UIState.SearchMode = true → User types query → UIState.SearchQuery → Filter scripts in CurrentPath → UIState.FilteredScripts → Display filtered results
 ```
 
 ### Refresh Flow

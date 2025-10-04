@@ -25,16 +25,16 @@ go build -o alec ./cmd/alec
 
 ## First Run
 
-### 1. Initialize Configuration
+### 1. View and Configure
 ```bash
-# Create default configuration
-alec init
-
-# Configure script directories
-alec config set script_dirs ./scripts ~/.local/bin ~/tools
-
-# Verify configuration
+# View current configuration
 alec config show
+
+# Edit configuration file
+alec config edit
+
+# Reset to defaults
+alec config reset
 ```
 
 ### 2. Prepare Script Directory
@@ -70,11 +70,11 @@ chmod +x ./scripts/examples/system-info.py
 
 ### 3. Launch Interactive Mode
 ```bash
-# Start the TUI
+# Start the TUI (default command when run without arguments)
 alec
 
-# Or launch with specific directory
-alec --scripts-dir ./scripts
+# Or launch with specific directories
+alec -d ./scripts -d ~/tools
 ```
 
 ## Basic Usage
@@ -82,25 +82,28 @@ alec --scripts-dir ./scripts
 ### Interactive Mode (TUI)
 
 #### Navigation
-- **Arrow Keys**: Navigate through script tree
-- **Enter**: Execute selected script
-- **Tab**: Switch between sidebar and main view
-- **Space**: Expand/collapse directories
-- **/**: Search scripts
-- **Esc**: Go back/cancel
-- **q**: Quit application
+- **↑/↓ or k/j**: Navigate through directory tree and scripts
+- **Enter**:
+  - On a directory: Navigate into the directory
+  - On a script: Execute the script (app will exit and script runs)
+  - On "..": Navigate up one level
+- **/** or **Ctrl+F**: Enter search mode (contextual - searches within current directory)
+- **Esc**: Exit search mode
+- **r**: Refresh script list
+- **q** or **Ctrl+C**: Quit application
 
 #### Execution
-1. Navigate to desired script using arrow keys
+1. Navigate to desired script using ↑/↓ or k/j
 2. Press **Enter** to execute
-3. View output in real-time
-4. Press **Esc** to return to browser when complete
+3. The TUI exits and the script runs with full terminal control
+4. After script completes, you return to your shell
 
-#### Search and Filter
-1. Press **/** to enter search mode
-2. Type query to filter scripts by name
-3. Press **Enter** to select first match
-4. Press **Esc** to clear search
+#### Search and Filter (Contextual)
+1. Press **/** or **Ctrl+F** to enter search mode
+2. Type query to filter scripts by name (searches within current directory context)
+3. Use **↑/↓** or **j/k** to navigate filtered results
+4. Press **Enter** to execute selected script
+5. Press **Esc** to exit search and return to normal navigation
 
 ### Non-Interactive Mode (CLI)
 
@@ -118,23 +121,26 @@ alec list --details
 
 #### Execute Scripts Directly
 ```bash
-# Execute by name
+# Execute by name (searches configured directories)
 alec run hello.sh
 
 # Execute by path
 alec run ./scripts/examples/system-info.py
 
-# Execute with timeout
-alec run --timeout 30s slow-script.sh
+# Execute with dry run (shows what would be executed)
+alec run --dry-run backup.sh
 ```
 
 #### Refresh Script Cache
 ```bash
-# Refresh all directories
+# Refresh all configured directories
 alec refresh
 
-# Refresh specific directory
-alec refresh --directory ./scripts
+# Refresh with cache clearing
+alec refresh --clear-cache
+
+# Refresh specific directories
+alec refresh -d ./scripts -d ~/tools
 ```
 
 ## Configuration
@@ -296,9 +302,11 @@ alec --help
 # Command-specific help
 alec run --help
 alec config --help
+alec list --help
+alec refresh --help
 
-# Interactive help
-alec  # Then press '?' in TUI
+# Demo mode (shows system status)
+alec demo
 ```
 
 ### Version Information

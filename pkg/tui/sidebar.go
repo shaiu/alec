@@ -342,10 +342,11 @@ func (m SidebarModel) View() string {
 		baseStyle = baseStyle.Copy().Inherit(m.style.Focused)
 	}
 
-	// Force sidebar to specific width regardless of m.width to prevent expansion
-	actualWidth := min(24, m.width) // Never exceed 24 characters
+	// Force sidebar to fixed width of 24 characters to prevent layout shifts
+	const fixedSidebarWidth = 24
 	return baseStyle.
-		Width(actualWidth).
+		Width(fixedSidebarWidth).
+		MaxWidth(fixedSidebarWidth).
 		Render(content.String())
 }
 

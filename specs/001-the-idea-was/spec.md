@@ -68,11 +68,13 @@ When creating this spec from a user prompt:
 As a developer, I want to organize my scripts in a directory structure and have them automatically available as commands in a Terminal UI, so that I can focus on writing scripts instead of maintaining CLI infrastructure.
 
 ### Acceptance Scenarios
-1. **Given** I have a directory with organized shell/Python scripts, **When** I launch the TUI CLI, **Then** I see all my scripts listed as navigable commands
-2. **Given** I add a new script to my designated script directory, **When** I refresh or restart the TUI, **Then** the new script appears as a new command option
-3. **Given** I navigate to a specific script in the TUI, **When** I select/execute it, **Then** the script runs and I see its output within the TUI interface
-4. **Given** I organize scripts in a folder hierarchy, **When** I browse the TUI, **Then** I can navigate through the folder structure to find and execute scripts
-5. **Given** I have both shell scripts and Python scripts in my directory, **When** I use the TUI, **Then** both script types are detected and executable
+1. **Given** I have a directory with organized shell/Python scripts, **When** I run `alec` without arguments, **Then** I see the TUI with all my scripts in a directory tree
+2. **Given** I add a new script to my designated script directory, **When** I press 'r' to refresh in the TUI, **Then** the new script appears in the tree
+3. **Given** I navigate to a specific script in the TUI, **When** I press Enter to execute it, **Then** the TUI exits and the script runs with full terminal control
+4. **Given** I organize scripts in a folder hierarchy, **When** I browse the TUI, **Then** I can navigate into directories with Enter and up with ".." to find scripts
+5. **Given** I have both shell scripts and Python scripts in my directory, **When** I use the TUI, **Then** both script types are detected and shown with appropriate icons
+6. **Given** I am viewing a directory in the TUI, **When** I press '/' to search, **Then** I can filter scripts within that directory context
+7. **Given** I want to run a script without the TUI, **When** I run `alec run script-name.sh`, **Then** the script executes directly in CLI mode
 
 ### Edge Cases
 - What happens when a script has execution permission issues?
@@ -85,19 +87,21 @@ As a developer, I want to organize my scripts in a directory structure and have 
 
 ### Functional Requirements
 - **FR-001**: System MUST automatically discover scripts in a configured directory structure
-- **FR-002**: System MUST support both shell scripts and Python scripts as executable commands
-- **FR-003**: System MUST provide a Terminal User Interface for script navigation and selection
-- **FR-004**: System MUST preserve the hierarchical folder structure when displaying scripts in the TUI
-- **FR-005**: System MUST execute selected scripts and capture their output for display
+- **FR-002**: System MUST support both shell scripts and Python scripts as executable commands (extensible to other types)
+- **FR-003**: System MUST provide a Terminal User Interface for script navigation and selection, launched by running the command without arguments
+- **FR-004**: System MUST preserve the hierarchical folder structure when displaying scripts in the TUI with directory-based navigation
+- **FR-005**: System MUST execute selected scripts and exit the application, passing control to the script
 - **FR-006**: System MUST allow users to configure which directories to scan for scripts
-- **FR-007**: System MUST refresh script listings when directory contents change via manual refresh mechanism
+- **FR-007**: System MUST refresh script listings when directory contents change via manual refresh mechanism (press 'r' in TUI or use refresh command)
 - **FR-008**: System MUST handle script execution errors gracefully and display meaningful error messages
 - **FR-009**: System MUST support basic script execution without argument passing (argument support to be added in future iterations)
 - **FR-010**: System MUST execute scripts using the current user's permissions without additional authentication
-- **FR-011**: System MUST support both interactive mode (TUI navigation) and non-interactive mode (direct script execution)
-- **FR-012**: System MUST render the TUI responsively based on terminal window size and adapt to window resize events
-- **FR-013**: System MUST provide a clean, minimal UI design suitable for daily developer use without excessive icons or visual noise
-- **FR-014**: System MUST provide an easy installation mechanism and simple update process for regular maintenance
+- **FR-011**: System MUST support both interactive mode (TUI launched by default) and non-interactive mode (CLI commands like list, run, config)
+- **FR-012**: System MUST render the TUI responsively based on terminal window size with fixed sidebar width to prevent layout shifts
+- **FR-013**: System MUST provide a clean, minimal UI design suitable for daily developer use with appropriate icons for script types
+- **FR-014**: System MUST provide an easy installation mechanism via binary distribution or source build
+- **FR-015**: System MUST provide contextual search functionality that filters scripts within the current directory context
+- **FR-016**: System MUST maintain a fixed sidebar width (24 characters) to prevent layout changes during navigation
 
 ### Key Entities *(include if feature involves data)*
 - **Script**: Represents an executable file (shell/Python) with metadata like name, path, permissions, and execution status
