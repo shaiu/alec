@@ -28,11 +28,12 @@ go.work.sum
 .env
 
 # Editor/IDE
-# .idea/
-# .vscode/
+.idea/
+.vscode/
 
 # Application binary
 alec
+bin/
 
 # Scripts folder (local scripts not part of the project)
 scripts/
