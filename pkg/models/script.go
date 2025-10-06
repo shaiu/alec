@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"path/filepath"
 	"time"
+
+	"github.com/your-org/alec/pkg/parser"
 )
 
 // ScriptStatus represents the current state of a script
@@ -23,19 +25,20 @@ const (
 
 // Script represents an executable script file with associated metadata
 type Script struct {
-	ID           string        `json:"id"`
-	Name         string        `json:"name"`
-	Path         string        `json:"path"`
-	Type         string        `json:"type"`
-	Size         int64         `json:"size"`
-	ModifiedTime time.Time     `json:"modified_time"`
-	Permissions  string        `json:"permissions"`
-	IsExecutable bool          `json:"is_executable"`
-	Description  string        `json:"description,omitempty"`
-	Tags         []string      `json:"tags,omitempty"`
-	Status       ScriptStatus  `json:"status"`
-	LastAccessed *time.Time    `json:"last_accessed,omitempty"`
-	ExecutionCount int         `json:"execution_count"`
+	ID             string               `json:"id"`
+	Name           string               `json:"name"`
+	Path           string               `json:"path"`
+	Type           string               `json:"type"`
+	Size           int64                `json:"size"`
+	ModifiedTime   time.Time            `json:"modified_time"`
+	Permissions    string               `json:"permissions"`
+	IsExecutable   bool                 `json:"is_executable"`
+	Description    string               `json:"description,omitempty"`
+	Tags           []string             `json:"tags,omitempty"`
+	Status         ScriptStatus         `json:"status"`
+	LastAccessed   *time.Time           `json:"last_accessed,omitempty"`
+	ExecutionCount int                  `json:"execution_count"`
+	Metadata       *parser.ScriptMetadata `json:"metadata,omitempty"`
 }
 
 // NewScript creates a new Script instance with generated ID

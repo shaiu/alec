@@ -12,6 +12,7 @@ import (
 
 	"github.com/your-org/alec/pkg/contracts"
 	"github.com/your-org/alec/pkg/models"
+	"github.com/your-org/alec/pkg/parser"
 )
 
 // ScriptDiscoveryService implements the ScriptDiscovery contract
@@ -349,6 +350,34 @@ func (s *ScriptDiscoveryService) createScriptInfo(path string) (*contracts.Scrip
 	// Get script type from extension
 	scriptType := models.GetTypeFromExtension(path)
 
+	// Parse script metadata using the parser
+	config := parser.DefaultParseConfig()
+	metadata, err := parser.ParseScript(path, scriptType, config)
+	// If parsing fails, continue without metadata (graceful degradation)
+	if err != nil {
+		metadata = nil
+	}
+
+	// Extract description from metadata if available
+	description := ""
+	if metadata != nil && metadata.Description != "" {
+		description = metadata.Description
+	}
+
+	// Convert parser.ScriptMetadata to contracts.ScriptMetadata
+	var contractMetadata *contracts.ScriptMetadata
+	if metadata != nil {
+		contractMetadata = &contracts.ScriptMetadata{
+			Description:  metadata.Description,
+			FullContent:  metadata.FullContent,
+			LineCount:    metadata.LineCount,
+			PreviewLines: metadata.PreviewLines,
+			IsTruncated:  metadata.IsTruncated,
+			Interpreter:  metadata.Interpreter,
+			Tags:         metadata.Tags,
+		}
+	}
+
 	// Create script info
 	scriptInfo := &contracts.ScriptInfo{
 		ID:           generateScriptID(path, info.ModTime()),
@@ -358,8 +387,9 @@ func (s *ScriptDiscoveryService) createScriptInfo(path string) (*contracts.Scrip
 		Size:         info.Size(),
 		ModifiedTime: info.ModTime(),
 		IsExecutable: isExecutable,
-		Description:  "", // Would extract from comments in full implementation
+		Description:  description,
 		Tags:         make([]string, 0),
+		Metadata:     contractMetadata,
 	}
 
 	return scriptInfo, nil

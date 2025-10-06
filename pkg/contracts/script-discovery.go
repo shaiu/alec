@@ -11,15 +11,27 @@ import (
 
 // ScriptInfo represents metadata about a discovered script
 type ScriptInfo struct {
-	ID           string    `json:"id"`
-	Name         string    `json:"name"`
-	Path         string    `json:"path"`
-	Type         string    `json:"type"`
-	Size         int64     `json:"size"`
-	ModifiedTime time.Time `json:"modified_time"`
-	IsExecutable bool      `json:"is_executable"`
-	Description  string    `json:"description,omitempty"`
-	Tags         []string  `json:"tags,omitempty"`
+	ID           string          `json:"id"`
+	Name         string          `json:"name"`
+	Path         string          `json:"path"`
+	Type         string          `json:"type"`
+	Size         int64           `json:"size"`
+	ModifiedTime time.Time       `json:"modified_time"`
+	IsExecutable bool            `json:"is_executable"`
+	Description  string          `json:"description,omitempty"`
+	Tags         []string        `json:"tags,omitempty"`
+	Metadata     *ScriptMetadata `json:"metadata,omitempty"`
+}
+
+// ScriptMetadata holds parsed metadata from the script content
+type ScriptMetadata struct {
+	Description  string   `json:"description"`
+	FullContent  string   `json:"full_content"`
+	LineCount    int      `json:"line_count"`
+	PreviewLines int      `json:"preview_lines"`
+	IsTruncated  bool     `json:"is_truncated"`
+	Interpreter  string   `json:"interpreter,omitempty"`
+	Tags         []string `json:"tags,omitempty"`
 }
 
 // DirectoryInfo represents a directory in the script hierarchy
