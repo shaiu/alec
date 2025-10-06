@@ -164,12 +164,6 @@ func (m MainContentModel) renderScriptDetails() string {
 	// Get file info if available
 	if stat, err := os.Stat(m.selectedScript.Path); err == nil {
 		content.WriteString("📅 " + m.style.Subtitle.Render("Modified: ") + stat.ModTime().Format("2006-01-02 15:04:05") + "\n")
-		content.WriteString("📏 " + m.style.Subtitle.Render("Size: ") + fmt.Sprintf("%d bytes", stat.Size()) + "\n")
-	}
-
-	// Show line count if available from metadata
-	if m.selectedScript.Metadata != nil && m.selectedScript.Metadata.LineCount > 0 {
-		content.WriteString("📊 " + m.style.Subtitle.Render("Lines: ") + fmt.Sprintf("%d", m.selectedScript.Metadata.LineCount) + "\n")
 	}
 
 	content.WriteString("\n")
