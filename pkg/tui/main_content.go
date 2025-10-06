@@ -117,8 +117,8 @@ func (m MainContentModel) View() string {
 		baseStyle = baseStyle.Copy().Inherit(m.style.Focused)
 	}
 
-	// Apply width constraint to prevent horizontal overflow
-	return baseStyle.Width(m.width).MaxHeight(m.height).Render(content)
+	// Render without width constraint to allow horizontal scrolling
+	return baseStyle.MaxHeight(m.height).Render(content)
 }
 
 func (m MainContentModel) renderWelcome() string {
