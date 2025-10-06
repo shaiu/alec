@@ -347,6 +347,8 @@ func (m SidebarModel) View() string {
 	return baseStyle.
 		Width(fixedSidebarWidth).
 		MaxWidth(fixedSidebarWidth).
+		Height(m.height).
+		MaxHeight(m.height).
 		Render(content.String())
 }
 
@@ -404,50 +406,66 @@ func (m SidebarModel) formatScriptLine(script contracts.ScriptInfo, selected boo
 	icon := m.getScriptIcon(script.Type)
 	name := script.Name
 
-	// Calculate available space: sidebar width - padding - icon - spaces
-	maxNameLength := max(8, m.width-8) // Leave room for icon, padding, and borders
+	// Calculate available space more conservatively
+	// Sidebar width (24) - icon (2) - space (1) - padding/borders (4) - ellipsis reserve (3) = ~14
+	const fixedSidebarWidth = 24
+	maxNameLength := fixedSidebarWidth - 10 // Conservative calculation
+
 	if len(name) > maxNameLength {
 		if maxNameLength > 3 {
 			name = name[:maxNameLength-3] + "..."
-		} else {
+		} else if maxNameLength > 0 {
 			name = name[:maxNameLength]
+		} else {
+			name = "..."
 		}
 	}
 
 	line := fmt.Sprintf("%s %s", icon, name)
 
+	// Apply max width constraint to prevent overflow
+	lineStyle := m.style.Item
 	if selected {
-		return m.style.Selected.Render(line)
+		lineStyle = m.style.Selected
 	}
-	return m.style.Item.Render(line)
+
+	return lineStyle.MaxWidth(fixedSidebarWidth - 2).Render(line)
 }
 
 func (m SidebarModel) formatSearchScriptLine(script contracts.ScriptInfo, selected bool) string {
 	icon := m.getScriptIcon(script.Type)
 	name := script.Name
 
-	// Calculate available space: sidebar width - padding - icon - spaces
-	maxNameLength := max(8, m.width-8) // Leave room for icon, padding, and borders
+	// Calculate available space more conservatively
+	// Sidebar width (24) - icon (2) - space (1) - padding/borders (4) - ellipsis reserve (3) = ~14
+	const fixedSidebarWidth = 24
+	maxNameLength := fixedSidebarWidth - 10 // Conservative calculation
 
-	// Highlight search matches in the name
-	if m.searchQuery != "" {
-		name = m.highlightSearchMatch(name, m.searchQuery)
-	}
-
+	// Truncate BEFORE highlighting to avoid style codes in length calculation
 	if len(name) > maxNameLength {
 		if maxNameLength > 3 {
 			name = name[:maxNameLength-3] + "..."
-		} else {
+		} else if maxNameLength > 0 {
 			name = name[:maxNameLength]
+		} else {
+			name = "..."
 		}
+	}
+
+	// Highlight search matches in the name (after truncation)
+	if m.searchQuery != "" && !strings.HasSuffix(name, "...") {
+		name = m.highlightSearchMatch(name, m.searchQuery)
 	}
 
 	line := fmt.Sprintf("%s %s", icon, name)
 
+	// Apply max width constraint to prevent overflow
+	lineStyle := m.style.Item
 	if selected {
-		return m.style.Selected.Render(line)
+		lineStyle = m.style.Selected
 	}
-	return m.style.Item.Render(line)
+
+	return lineStyle.MaxWidth(fixedSidebarWidth - 2).Render(line)
 }
 
 func (m SidebarModel) highlightSearchMatch(text, query string) string {
@@ -814,7 +832,6 @@ func (m SidebarModel) GetTotalNavigationItems() int {
 	return len(m.currentItems)
 }
 
-
 type ScriptsLoadedMsg struct {
 	Directories []contracts.DirectoryInfo
 	Scripts     []contracts.ScriptInfo
@@ -827,7 +844,6 @@ type ScriptsLoadErrorMsg struct {
 type ScriptSelectedMsg struct {
 	Script contracts.ScriptInfo
 }
-
 
 func min(a, b int) int {
 	if a < b {
@@ -971,22 +987,30 @@ func (m SidebarModel) formatNavigationItemLine(item NavigationItem, selected boo
 		name = item.Name
 	}
 
-	// Calculate available space
-	maxNameLength := max(8, m.width-8)
+	// Calculate available space more conservatively
+	// Sidebar width (24) - icon (2) - space (1) - padding/borders (4) - ellipsis reserve (3) = ~14
+	const fixedSidebarWidth = 24
+	maxNameLength := fixedSidebarWidth - 10 // Conservative calculation
+
 	if len(name) > maxNameLength {
 		if maxNameLength > 3 {
 			name = name[:maxNameLength-3] + "..."
-		} else {
+		} else if maxNameLength > 0 {
 			name = name[:maxNameLength]
+		} else {
+			name = "..."
 		}
 	}
 
 	line := fmt.Sprintf("%s %s", icon, name)
 
+	// Apply max width constraint to prevent overflow
+	lineStyle := m.style.Item
 	if selected {
-		return m.style.Selected.Render(line)
+		lineStyle = m.style.Selected
 	}
-	return m.style.Item.Render(line)
+
+	return lineStyle.MaxWidth(fixedSidebarWidth - 2).Render(line)
 }
 
 // collectAllScriptsFromDirectory recursively collects all scripts from a directory tree

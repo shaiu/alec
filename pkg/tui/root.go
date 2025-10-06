@@ -11,7 +11,6 @@ import (
 	"github.com/your-org/alec/pkg/services"
 )
 
-
 type RootModel struct {
 	width  int
 	height int
@@ -201,8 +200,6 @@ func (m *RootModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.quitting = true
 		return m, tea.Quit
 
-
-
 	default:
 		var cmd tea.Cmd
 		var model tea.Model
@@ -238,16 +235,35 @@ func (m *RootModel) View() string {
 	header := m.header.View()
 	footer := m.footer.View()
 
-	// contentHeight := m.height - lipgloss.Height(header) - lipgloss.Height(footer)
+	// Ensure header and footer have their heights constrained
+	headerHeight := lipgloss.Height(header)
+	footerHeight := lipgloss.Height(footer)
+
+	// Calculate actual available content height accounting for margins
+	const marginVertical = 2 // 1 line top + 1 line bottom
+	availableHeight := m.height - marginVertical
+	contentHeight := availableHeight - headerHeight - footerHeight
+
+	// Ensure content height is properly constrained
+	if contentHeight < 1 {
+		contentHeight = 1
+	}
 
 	sidebar := m.sidebar.View()
 	mainContent := m.mainContent.View()
 
+	// Apply height constraint to content area
 	content := lipgloss.JoinHorizontal(
 		lipgloss.Top,
 		sidebar,
 		mainContent,
 	)
+
+	// Force content to respect height limit
+	contentStyle := lipgloss.NewStyle().
+		MaxHeight(contentHeight).
+		Height(contentHeight)
+	content = contentStyle.Render(content)
 
 	app := lipgloss.JoinVertical(
 		lipgloss.Left,
@@ -265,14 +281,14 @@ func (m *RootModel) View() string {
 
 // Layout constants for responsive design
 const (
-	MinTerminalWidth     = 80
-	MinTerminalHeight    = 24
-	MaxSidebarWidth      = 20  // Very narrow - max 20 characters
-	MinSidebarWidth      = 12  // Very narrow minimum
-	DefaultSidebarRatio  = 0.12 // Only 12% of screen width
-	HeaderHeight         = 3
-	FooterHeight         = 3
-	MinContentHeight     = 10
+	MinTerminalWidth    = 80
+	MinTerminalHeight   = 24
+	MaxSidebarWidth     = 20   // Very narrow - max 20 characters
+	MinSidebarWidth     = 12   // Very narrow minimum
+	DefaultSidebarRatio = 0.12 // Only 12% of screen width
+	HeaderHeight        = 3
+	FooterHeight        = 3
+	MinContentHeight    = 10
 )
 
 func (m *RootModel) updateLayout() {
@@ -313,7 +329,7 @@ func (m *RootModel) handleSmallTerminal() {
 	// For very small terminals, use a simplified single-column layout
 	if m.width < 60 {
 		// Hide sidebar in extremely narrow terminals
-		m.sidebar.SetSize(0, m.height-6) // -4 for header/footer, -2 for margin
+		m.sidebar.SetSize(0, m.height-6)           // -4 for header/footer, -2 for margin
 		m.mainContent.SetSize(m.width, m.height-6) // -4 for header/footer, -2 for margin
 		m.header.SetSize(m.width, 2)
 		m.footer.SetSize(m.width, 2)
@@ -418,7 +434,6 @@ func max(a, b int) int {
 	return b
 }
 
-
 func (m *RootModel) showHelp() {
 	// This would show a help overlay or switch to help view
 	// For now, we'll update the footer with help info
@@ -519,4 +534,3 @@ func (m *RootModel) updateFooterScriptCount() {
 	// Update loading status
 	m.footer.SetLoading(m.sidebar.IsLoading())
 }
-

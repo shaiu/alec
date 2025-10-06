@@ -109,13 +109,16 @@ func (m MainContentModel) View() string {
 		content = m.renderWelcome()
 	}
 
+	// Truncate content to fit within allocated height to prevent overflow
+	content = m.truncateToHeight(content, m.height)
+
 	baseStyle := m.style.Base
 	if m.focused {
 		baseStyle = baseStyle.Copy().Inherit(m.style.Focused)
 	}
 
-	// Simplified rendering without width constraints to debug
-	return content
+	// Apply width constraint to prevent horizontal overflow
+	return baseStyle.Width(m.width).MaxHeight(m.height).Render(content)
 }
 
 func (m MainContentModel) renderWelcome() string {
@@ -153,19 +156,67 @@ func (m MainContentModel) renderScriptDetails() string {
 	content.WriteString("📁 " + m.style.Subtitle.Render("Location: ") + m.selectedScript.Path + "\n")
 	content.WriteString("🔧 " + m.style.Subtitle.Render("Type: ") + m.selectedScript.Type + "\n")
 
+	// Show interpreter if available from metadata
+	if m.selectedScript.Metadata != nil && m.selectedScript.Metadata.Interpreter != "" {
+		content.WriteString("⚙️  " + m.style.Subtitle.Render("Interpreter: ") + m.selectedScript.Metadata.Interpreter + "\n")
+	}
+
 	// Get file info if available
 	if stat, err := os.Stat(m.selectedScript.Path); err == nil {
 		content.WriteString("📅 " + m.style.Subtitle.Render("Modified: ") + stat.ModTime().Format("2006-01-02 15:04:05") + "\n")
 		content.WriteString("📏 " + m.style.Subtitle.Render("Size: ") + fmt.Sprintf("%d bytes", stat.Size()) + "\n")
 	}
 
+	// Show line count if available from metadata
+	if m.selectedScript.Metadata != nil && m.selectedScript.Metadata.LineCount > 0 {
+		content.WriteString("📊 " + m.style.Subtitle.Render("Lines: ") + fmt.Sprintf("%d", m.selectedScript.Metadata.LineCount) + "\n")
+	}
+
 	content.WriteString("\n")
 
-	// Try to extract description from script comments
-	description := m.extractScriptDescription(m.selectedScript.Path)
+	// Display description from metadata (preferred) or fallback to old method
+	description := ""
+	if m.selectedScript.Metadata != nil && m.selectedScript.Metadata.Description != "" {
+		description = m.selectedScript.Metadata.Description
+	} else {
+		// Fallback to old extraction method for scripts without metadata
+		description = m.extractScriptDescription(m.selectedScript.Path)
+	}
+
 	if description != "" {
 		content.WriteString("📝 " + m.style.Subtitle.Render("Description:") + "\n")
 		content.WriteString(m.style.Content.Render(description) + "\n\n")
+	}
+
+	// Display script preview if metadata is available
+	if m.selectedScript.Metadata != nil && m.selectedScript.Metadata.FullContent != "" {
+		content.WriteString(strings.Repeat("─", 50) + "\n")
+
+		previewTitle := "Script Preview"
+		if m.selectedScript.Metadata.IsTruncated {
+			previewTitle = fmt.Sprintf("Script Preview (showing %d of %d lines)",
+				m.selectedScript.Metadata.PreviewLines,
+				m.selectedScript.Metadata.LineCount)
+		} else {
+			previewTitle = "Full Script"
+		}
+
+		content.WriteString("📄 " + m.style.Subtitle.Render(previewTitle) + "\n\n")
+
+		// Render the script content with subtle styling
+		previewStyle := lipgloss.NewStyle().
+			Foreground(lipgloss.Color("#F8F8F2")).
+			Background(lipgloss.Color("#1E1E1E")).
+			Padding(1).
+			MarginBottom(1)
+
+		content.WriteString(previewStyle.Render(m.selectedScript.Metadata.FullContent) + "\n")
+
+		if m.selectedScript.Metadata.IsTruncated {
+			truncateNote := m.style.Subtitle.Render("... (script continues)")
+			content.WriteString(truncateNote + "\n")
+		}
+		content.WriteString("\n")
 	}
 
 	// Execution instructions
@@ -235,11 +286,6 @@ func (m MainContentModel) extractScriptDescription(scriptPath string) string {
 	return result
 }
 
-
-
-
-
-
 func (m *MainContentModel) SetSize(width, height int) {
 	m.width = width
 	m.height = height
@@ -248,8 +294,6 @@ func (m *MainContentModel) SetSize(width, height int) {
 func (m *MainContentModel) SetFocused(focused bool) {
 	m.focused = focused
 }
-
-
 
 // HandleSizeChange handles terminal size changes for responsive layout
 func (m *MainContentModel) HandleSizeChange(width, height int) tea.Cmd {
@@ -268,3 +312,27 @@ func (m *MainContentModel) ProcessMessage(msg tea.Msg) tea.Cmd {
 	return nil
 }
 
+// truncateToHeight truncates content to fit within the specified height
+// This prevents content overflow that would push the layout off screen
+func (m MainContentModel) truncateToHeight(content string, maxHeight int) string {
+	if maxHeight <= 0 {
+		return ""
+	}
+
+	lines := strings.Split(content, "\n")
+
+	// Reserve space for truncation indicator if needed
+	availableLines := maxHeight
+	if len(lines) > availableLines {
+		// Take only the lines that fit, minus one for the indicator
+		truncatedLines := lines[:availableLines-1]
+
+		// Add truncation indicator
+		indicator := m.style.Subtitle.Render("... (content truncated, use arrow keys to scroll)")
+		truncatedLines = append(truncatedLines, indicator)
+
+		return strings.Join(truncatedLines, "\n")
+	}
+
+	return content
+}
