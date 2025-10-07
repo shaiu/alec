@@ -62,7 +62,7 @@ func (m BreadcrumbModel) View() string {
 	if m.breadcrumbs != "" {
 		content = m.style.Text.Render(m.breadcrumbs)
 	} else {
-		content = m.style.Text.Render("\ue2c7 Scripts") // Material icon: folder
+		content = m.style.Text.Render("▸ Scripts") // Folder icon
 	}
 
 	breadcrumbBar := m.style.Base.Width(m.width).Render(content)

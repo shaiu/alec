@@ -492,13 +492,13 @@ func (m SidebarModel) highlightSearchMatch(text, query string) string {
 func (m SidebarModel) getScriptIcon(scriptType string) string {
 	switch scriptType {
 	case "shell":
-		return "\ue86f" // Material icon: code
+		return "⚡" // Shell script icon
 	case "python":
-		return "\ue86f" // Material icon: code
+		return "◆" // Python script icon
 	case "node":
-		return "\ue86f" // Material icon: code
+		return "●" // Node script icon
 	default:
-		return "\ue873" // Material icon: description
+		return "◇" // Generic file icon
 	}
 }
 
@@ -972,10 +972,10 @@ func (m SidebarModel) formatNavigationItemLine(item NavigationItem, selected boo
 
 	if item.Type == NavigationItemDirectory {
 		if item.IsParent {
-			icon = "⬆️"
+			icon = "⬆"
 			name = ".."
 		} else {
-			icon = "\ue2c7" // Material icon: folder
+			icon = "▸" // Folder/directory icon
 			name = item.Name
 		}
 	} else {
