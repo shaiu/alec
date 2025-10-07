@@ -342,8 +342,8 @@ func (m SidebarModel) View() string {
 		baseStyle = baseStyle.Copy().Inherit(m.style.Focused)
 	}
 
-	// Force sidebar to fixed width of 24 characters to prevent layout shifts
-	const fixedSidebarWidth = 24
+	// Force sidebar to fixed width of 35 characters to prevent layout shifts
+	const fixedSidebarWidth = 35
 	return baseStyle.
 		Width(fixedSidebarWidth).
 		MaxWidth(fixedSidebarWidth).
@@ -407,8 +407,8 @@ func (m SidebarModel) formatScriptLine(script contracts.ScriptInfo, selected boo
 	name := script.Name
 
 	// Calculate available space more conservatively
-	// Sidebar width (24) - icon (2) - space (1) - padding/borders (4) - ellipsis reserve (3) = ~14
-	const fixedSidebarWidth = 24
+	// Sidebar width (35) - icon (2) - space (1) - padding/borders (4) - ellipsis reserve (3) = ~25
+	const fixedSidebarWidth = 35
 	maxNameLength := fixedSidebarWidth - 10 // Conservative calculation
 
 	if len(name) > maxNameLength {
@@ -437,8 +437,8 @@ func (m SidebarModel) formatSearchScriptLine(script contracts.ScriptInfo, select
 	name := script.Name
 
 	// Calculate available space more conservatively
-	// Sidebar width (24) - icon (2) - space (1) - padding/borders (4) - ellipsis reserve (3) = ~14
-	const fixedSidebarWidth = 24
+	// Sidebar width (35) - icon (2) - space (1) - padding/borders (4) - ellipsis reserve (3) = ~25
+	const fixedSidebarWidth = 35
 	maxNameLength := fixedSidebarWidth - 10 // Conservative calculation
 
 	// Truncate BEFORE highlighting to avoid style codes in length calculation
@@ -988,8 +988,8 @@ func (m SidebarModel) formatNavigationItemLine(item NavigationItem, selected boo
 	}
 
 	// Calculate available space more conservatively
-	// Sidebar width (24) - icon (2) - space (1) - padding/borders (4) - ellipsis reserve (3) = ~14
-	const fixedSidebarWidth = 24
+	// Sidebar width (35) - icon (2) - space (1) - padding/borders (4) - ellipsis reserve (3) = ~25
+	const fixedSidebarWidth = 35
 	maxNameLength := fixedSidebarWidth - 10 // Conservative calculation
 
 	if len(name) > maxNameLength {

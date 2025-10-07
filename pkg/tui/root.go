@@ -300,7 +300,7 @@ func (m *RootModel) updateLayout() {
 
 	// Account for margin (1 line top + 1 line bottom = 2 lines total)
 	// and component heights when calculating available content height
-	sidebarWidth := 24 // Wide enough for script names, narrow enough for main content
+	sidebarWidth := 35 // Wider sidebar to prevent script name truncation
 
 	// Add overlap to give main content more horizontal space (accounting for margins)
 	const horizontalOverlap = 6 // Compensate for margins and give extra space
