@@ -62,7 +62,7 @@ func (m BreadcrumbModel) View() string {
 	if m.breadcrumbs != "" {
 		content = m.style.Text.Render(m.breadcrumbs)
 	} else {
-		content = m.style.Text.Render("▸ Scripts") // Folder icon
+		content = m.style.Text.Render("■ Scripts") // Folder icon (inspired by icons/folder.svg)
 	}
 
 	breadcrumbBar := m.style.Base.Width(m.width).Render(content)

@@ -490,16 +490,8 @@ func (m SidebarModel) highlightSearchMatch(text, query string) string {
 }
 
 func (m SidebarModel) getScriptIcon(scriptType string) string {
-	switch scriptType {
-	case "shell":
-		return "⚡" // Shell script icon
-	case "python":
-		return "◆" // Python script icon
-	case "node":
-		return "●" // Node script icon
-	default:
-		return "◇" // Generic file icon
-	}
+	// All script types use console icon (inspired by icons/console.svg)
+	return "▣" // Console/terminal icon for all scripts
 }
 
 func (m SidebarModel) GetSelectedScript() *contracts.ScriptInfo {
@@ -972,10 +964,10 @@ func (m SidebarModel) formatNavigationItemLine(item NavigationItem, selected boo
 
 	if item.Type == NavigationItemDirectory {
 		if item.IsParent {
-			icon = "⬆"
+			icon = "↑"
 			name = ".."
 		} else {
-			icon = "▸" // Folder/directory icon
+			icon = "■" // Folder icon (inspired by icons/folder.svg)
 			name = item.Name
 		}
 	} else {
