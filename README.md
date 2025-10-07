@@ -19,6 +19,19 @@ Alec is a Script-to-CLI TUI system that automatically discovers scripts in confi
 - 🔄 **Manual Refresh** - Press 'r' to refresh script listings
 - 🎯 **Clean Exit** - Scripts run with full terminal control
 
+## Prerequisites
+
+**Recommended:** Install a [Nerd Font](https://www.nerdfonts.com/) for the best visual experience with rich file-type icons.
+
+Without a Nerd Font, icons will appear as boxes or missing characters, but the application will still function normally.
+
+Popular Nerd Fonts:
+- [JetBrains Mono Nerd Font](https://github.com/ryanoasis/nerd-fonts/releases/latest)
+- [Fira Code Nerd Font](https://github.com/ryanoasis/nerd-fonts/releases/latest)
+- [Hack Nerd Font](https://github.com/ryanoasis/nerd-fonts/releases/latest)
+
+After installing, configure your terminal to use the Nerd Font.
+
 ## Installation
 
 ### Homebrew (macOS)
@@ -131,6 +144,7 @@ alec
 
 **UI Features:**
 - Breadcrumb row shows current path (e.g., `📁 scripts › database › backups`)
+- Rich file-type icons (requires Nerd Font) - different icons for shell, Python, JavaScript, Go, etc.
 - Script descriptions with preserved line breaks
 - Metadata: interpreter, modification time, preview
 - Fixed 35-character sidebar width
@@ -258,9 +272,10 @@ Alec will discover and display them with the folder structure preserved.
 
 ### Tech Stack
 
-- **Language**: Go 1.21+
+- **Language**: Go 1.23+
 - **TUI Framework**: [Bubble Tea](https://github.com/charmbracelet/bubbletea)
 - **Styling**: [Lip Gloss](https://github.com/charmbracelet/lipgloss)
+- **Icons**: [go-devicons](https://github.com/epilande/go-devicons) (Nerd Font icons)
 - **CLI Framework**: [Cobra](https://github.com/spf13/cobra)
 - **Configuration**: [Viper](https://github.com/spf13/viper)
 
@@ -318,6 +333,8 @@ MIT License - see [LICENSE](LICENSE) for details
 Built with the amazing [Charm](https://charm.sh) libraries:
 - [Bubble Tea](https://github.com/charmbracelet/bubbletea) - TUI framework
 - [Lip Gloss](https://github.com/charmbracelet/lipgloss) - Terminal styling
+- [go-devicons](https://github.com/epilande/go-devicons) - Nerd Font icon mappings
+- [Nerd Fonts](https://www.nerdfonts.com/) - Iconic font collection
 
 ## Links
 
