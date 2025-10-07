@@ -8,7 +8,7 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/your-org/alec/pkg/contracts"
+	"github.com/shaiu/alec/pkg/contracts"
 )
 
 type ContentView int

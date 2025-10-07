@@ -8,8 +8,8 @@ import (
 	"strings"
 
 	"github.com/spf13/viper"
-	"github.com/your-org/alec/pkg/contracts"
-	"github.com/your-org/alec/pkg/models"
+	"github.com/shaiu/alec/pkg/contracts"
+	"github.com/shaiu/alec/pkg/models"
 )
 
 // ConfigManagerService implements the ConfigManager contract

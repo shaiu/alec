@@ -1,4 +1,4 @@
-module github.com/your-org/alec
+module github.com/shaiu/alec
 
 go 1.21
 

@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/your-org/alec/pkg/services"
+	"github.com/shaiu/alec/pkg/services"
 )
 
 // TestDirectoryScanAndRefresh tests the complete directory scanning workflow

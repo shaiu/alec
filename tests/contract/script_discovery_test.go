@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/your-org/alec/pkg/contracts"
+	"github.com/shaiu/alec/pkg/contracts"
 )
 
 // TestScriptDiscoveryContract verifies that any implementation of ScriptDiscovery

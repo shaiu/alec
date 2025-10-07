@@ -12,8 +12,8 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/your-org/alec/pkg/contracts"
-	"github.com/your-org/alec/pkg/models"
+	"github.com/shaiu/alec/pkg/contracts"
+	"github.com/shaiu/alec/pkg/models"
 )
 
 // ScriptExecutorService implements the ScriptExecutor contract

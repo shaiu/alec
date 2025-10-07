@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/your-org/alec/pkg/services"
+	"github.com/shaiu/alec/pkg/services"
 )
 
 // TestConfigurationLoadingAndValidation tests the complete configuration workflow

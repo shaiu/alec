@@ -8,19 +8,18 @@
 ### Download and Install
 ```bash
 # Download latest release
-curl -L https://github.com/your-org/alec/releases/latest/download/alec-linux-amd64 -o alec
+curl -L https://github.com/shaiu/alec/releases/latest/download/alec-darwin-amd64 -o alec
 chmod +x alec
 sudo mv alec /usr/local/bin/
 
-# Or install via package manager
-brew install alec          # macOS
-apt install alec           # Ubuntu/Debian
-choco install alec         # Windows
+# Or install via Homebrew (macOS)
+brew tap shaiu/alec
+brew install alec
 ```
 
 ### Build from Source
 ```bash
-git clone https://github.com/your-org/alec.git
+git clone https://github.com/shaiu/alec.git
 cd alec
 go build -o alec ./cmd/alec
 ./alec --version

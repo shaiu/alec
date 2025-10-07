@@ -8,8 +8,8 @@ import (
 	"syscall"
 
 	"github.com/spf13/cobra"
-	"github.com/your-org/alec/pkg/services"
-	"github.com/your-org/alec/pkg/tui"
+	"github.com/shaiu/alec/pkg/services"
+	"github.com/shaiu/alec/pkg/tui"
 )
 
 func createTUICommand() *cobra.Command {
