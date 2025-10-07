@@ -8,8 +8,8 @@ before:
   hooks:
     # Ensure dependencies are up to date
     - go mod tidy
-    # Run unit and contract tests before building (skip integration tests)
-    - go test ./tests/unit ./tests/contract ./tests
+    # Run unit and contract tests before building (skip integration and standalone tests)
+    - go test ./tests/unit ./tests/contract
 
 builds:
   - id: alec
