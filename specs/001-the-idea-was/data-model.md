@@ -155,7 +155,7 @@ Represents parsed metadata extracted from script file content using dedicated le
 - `IsTruncated`: Boolean flag indicating if preview is truncated
 - `DescriptionMaxChars`: Maximum characters for description (default: 300)
 - `MaxPreviewLines`: Maximum lines for preview display (default: 50)
-- `FullScriptThreshold`: Line count threshold for full vs preview (default: 100)
+- `FullScriptThreshold`: Line count threshold for full vs preview (default: 30)
 
 **Validation Rules**:
 - Description must preserve original line breaks (newlines, not spaces)
