@@ -13,7 +13,7 @@ chmod +x alec
 sudo mv alec /usr/local/bin/
 
 # Or install via Homebrew (macOS)
-brew tap shaiu/alec
+brew tap shaiu/tap
 brew install alec
 ```
 
