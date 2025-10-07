@@ -329,7 +329,7 @@ func (m MainContentModel) extractScriptDescription(scriptPath string) string {
 			comment := strings.TrimSpace(strings.TrimPrefix(trimmed, "#"))
 			if comment != "" {
 				if description.Len() > 0 {
-					description.WriteString(" ")
+					description.WriteString("\n")
 				}
 				description.WriteString(comment)
 			}

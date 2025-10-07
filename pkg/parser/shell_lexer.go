@@ -87,7 +87,7 @@ func (l *ShellLexer) Parse(reader io.Reader, config ParseConfig) (*ScriptMetadat
 
 	// Build description from collected parts
 	if len(descriptionParts) > 0 {
-		fullDesc := strings.Join(descriptionParts, " ")
+		fullDesc := strings.Join(descriptionParts, "\n")
 		metadata.Description = truncateDescription(fullDesc, config.DescriptionMaxChars)
 	}
 
@@ -159,7 +159,7 @@ func (l *ShellLexer) ExtractDescription(reader io.Reader) (string, error) {
 		return "", fmt.Errorf("error reading shell script: %w", err)
 	}
 
-	return strings.Join(descriptionParts, " "), nil
+	return strings.Join(descriptionParts, "\n"), nil
 }
 
 // extractMarkedDescription checks for custom description markers and extracts the content

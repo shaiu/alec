@@ -140,10 +140,10 @@ func (l *PythonLexer) Parse(reader io.Reader, config ParseConfig) (*ScriptMetada
 
 	// Build description: prioritize docstring, fallback to comments
 	if len(docstringLines) > 0 {
-		fullDesc := strings.Join(docstringLines, " ")
+		fullDesc := strings.Join(docstringLines, "\n")
 		metadata.Description = truncateDescription(fullDesc, config.DescriptionMaxChars)
 	} else if len(commentLines) > 0 {
-		fullDesc := strings.Join(commentLines, " ")
+		fullDesc := strings.Join(commentLines, "\n")
 		metadata.Description = truncateDescription(fullDesc, config.DescriptionMaxChars)
 	}
 
@@ -258,9 +258,9 @@ func (l *PythonLexer) ExtractDescription(reader io.Reader) (string, error) {
 
 	// Prioritize docstring over comments
 	if len(docstringLines) > 0 {
-		return strings.Join(docstringLines, " "), nil
+		return strings.Join(docstringLines, "\n"), nil
 	}
-	return strings.Join(commentLines, " "), nil
+	return strings.Join(commentLines, "\n"), nil
 }
 
 // extractMarkedDescription checks for custom description markers in Python comments
