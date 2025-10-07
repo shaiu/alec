@@ -1,8 +1,6 @@
 package tui
 
 import (
-	"strings"
-
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/epilande/go-devicons"
@@ -27,7 +25,9 @@ func NewBreadcrumbModel() BreadcrumbModel {
 	style := BreadcrumbStyle{
 		Base: lipgloss.NewStyle().
 			Foreground(lipgloss.Color("#F8F8F2")).
-			Padding(0, 2),
+			Padding(0, 1).
+			Border(lipgloss.NormalBorder()).
+			BorderForeground(lipgloss.Color("#6272A4")),
 		Text: lipgloss.NewStyle().
 			Foreground(lipgloss.Color("#8BE9FD")),
 		Border: lipgloss.NewStyle().
@@ -68,10 +68,8 @@ func (m BreadcrumbModel) View() string {
 		content = m.style.Text.Render(style.Icon + " Scripts")
 	}
 
-	breadcrumbBar := m.style.Base.Width(m.width).Render(content)
-	border := m.style.Border.Width(m.width).Render(strings.Repeat("─", m.width))
-
-	return breadcrumbBar + "\n" + border
+	// Render with border - no need for separate border line
+	return m.style.Base.Width(m.width - 2).Render(content) // -2 for left and right borders
 }
 
 func (m *BreadcrumbModel) SetSize(width, height int) {

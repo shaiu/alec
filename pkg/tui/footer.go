@@ -38,7 +38,9 @@ func NewFooterModel() FooterModel {
 	style := FooterStyle{
 		Base: lipgloss.NewStyle().
 			Foreground(lipgloss.Color("#F8F8F2")).
-			Padding(0, 2),
+			Padding(0, 1).
+			Border(lipgloss.NormalBorder()).
+			BorderForeground(lipgloss.Color("#6272A4")),
 		Help: lipgloss.NewStyle().
 			Foreground(lipgloss.Color("#6272A4")),
 		Status: lipgloss.NewStyle().
@@ -97,10 +99,6 @@ func (m FooterModel) View() string {
 	if m.width == 0 {
 		return ""
 	}
-
-	border := m.style.Border.
-		Width(m.width).
-		Render(strings.Repeat("─", m.width))
 
 	// Left section: Help text
 	help := m.style.Help.Render(m.helpText)
@@ -169,11 +167,11 @@ func (m FooterModel) View() string {
 		)
 	}
 
-	footer := m.style.Base.
-		Width(m.width).
+	// Render with border - no need for separate border line
+	// Account for borders (2 chars for left and right)
+	return m.style.Base.
+		Width(m.width - 2).
 		Render(footerContent)
-
-	return border + "\n" + footer
 }
 
 func (m *FooterModel) SetSize(width, height int) {

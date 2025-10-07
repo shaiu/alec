@@ -30,7 +30,9 @@ func NewHeaderModel() HeaderModel {
 	style := HeaderStyle{
 		Base: lipgloss.NewStyle().
 			Foreground(lipgloss.Color("#F8F8F2")).
-			Padding(0, 2),
+			Padding(0, 1).
+			Border(lipgloss.NormalBorder()).
+			BorderForeground(lipgloss.Color("#6272A4")),
 		Title: lipgloss.NewStyle().
 			Bold(true).
 			Foreground(lipgloss.Color("#BD93F9")),
@@ -110,10 +112,8 @@ func (m HeaderModel) View() string {
 		}
 	}
 
-	header := m.style.Base.Width(m.width).Render(headerContent)
-	border := m.style.Border.Width(m.width).Render(strings.Repeat("─", m.width))
-
-	return header + "\n" + border
+	// Render with border - no need for separate border line
+	return m.style.Base.Width(m.width - 2).Render(headerContent) // -2 for left and right borders
 }
 
 func (m *HeaderModel) SetSize(width, height int) {

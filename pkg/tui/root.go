@@ -262,9 +262,10 @@ func (m *RootModel) View() string {
 	footerHeight := lipgloss.Height(footer)
 
 	// Calculate actual available content height accounting for margins
-	const marginVertical = 2 // 1 line top + 1 line bottom
+	const marginVertical = 2    // 1 line top + 1 line bottom (outer container)
+	const panelMargins = 3       // Margins between panels (1 each for header, breadcrumb, content rows)
 	availableHeight := m.height - marginVertical
-	contentHeight := availableHeight - headerHeight - breadcrumbHeight - footerHeight
+	contentHeight := availableHeight - headerHeight - breadcrumbHeight - footerHeight - panelMargins
 
 	// Ensure content height is properly constrained
 	if contentHeight < 1 {
@@ -274,10 +275,13 @@ func (m *RootModel) View() string {
 	sidebar := m.sidebar.View()
 	mainContent := m.mainContent.View()
 
+	// Add small horizontal margin between sidebar and main content panels
+	sidebarWithMargin := lipgloss.NewStyle().MarginRight(1).Render(sidebar)
+
 	// Apply height constraint to content area
 	content := lipgloss.JoinHorizontal(
 		lipgloss.Top,
-		sidebar,
+		sidebarWithMargin,
 		mainContent,
 	)
 
@@ -287,11 +291,16 @@ func (m *RootModel) View() string {
 		Height(contentHeight)
 	content = contentStyle.Render(content)
 
+	// Add small vertical margins between panel rows
+	headerWithMargin := lipgloss.NewStyle().MarginBottom(1).Render(header)
+	breadcrumbWithMargin := lipgloss.NewStyle().MarginBottom(1).Render(breadcrumb)
+	contentWithMargin := lipgloss.NewStyle().MarginBottom(1).Render(content)
+
 	app := lipgloss.JoinVertical(
 		lipgloss.Left,
-		header,
-		breadcrumb,
-		content,
+		headerWithMargin,
+		breadcrumbWithMargin,
+		contentWithMargin,
 		footer,
 	)
 

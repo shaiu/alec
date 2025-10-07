@@ -49,8 +49,9 @@ type MainContentStyle struct {
 func NewMainContentModel(configManager contracts.ConfigManager) MainContentModel {
 	style := MainContentStyle{
 		Base: lipgloss.NewStyle().
-			PaddingLeft(1).
-			PaddingTop(1),
+			Padding(0, 1).
+			Border(lipgloss.NormalBorder()).
+			BorderForeground(lipgloss.Color("#6272A4")),
 		Title: lipgloss.NewStyle().
 			Bold(true).
 			Foreground(lipgloss.Color("#FFFFFF")),
@@ -72,6 +73,8 @@ func NewMainContentModel(configManager contracts.ConfigManager) MainContentModel
 			Foreground(lipgloss.Color("#FFB86C")).
 			Bold(true),
 		Focused: lipgloss.NewStyle().
+			Padding(0, 1).
+			Border(lipgloss.NormalBorder()).
 			BorderForeground(lipgloss.Color("#BD93F9")),
 	}
 
@@ -119,11 +122,15 @@ func (m MainContentModel) View() string {
 
 	baseStyle := m.style.Base
 	if m.focused {
-		baseStyle = baseStyle.Copy().Inherit(m.style.Focused)
+		baseStyle = m.style.Focused
 	}
 
+	// Account for borders (2 chars for left and right borders)
 	// Render without width constraint to allow horizontal scrolling
-	return baseStyle.MaxHeight(m.height).Render(content)
+	return baseStyle.
+		Width(m.width - 2).
+		MaxHeight(m.height).
+		Render(content)
 }
 
 func (m MainContentModel) renderWelcome() string {

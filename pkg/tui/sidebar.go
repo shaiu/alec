@@ -78,10 +78,9 @@ type SidebarStyle struct {
 func NewSidebarModel(scriptDiscovery contracts.ScriptDiscovery, configManager contracts.ConfigManager) SidebarModel {
 	style := SidebarStyle{
 		Base: lipgloss.NewStyle().
-			BorderRight(true).
-			BorderForeground(lipgloss.Color("#3C3C3C")).
-			PaddingLeft(1).
-			PaddingRight(1),
+			Border(lipgloss.NormalBorder()).
+			BorderForeground(lipgloss.Color("#6272A4")).
+			Padding(0, 1),
 		Title: lipgloss.NewStyle().
 			Bold(true).
 			Foreground(lipgloss.Color("#FFFFFF")),
@@ -91,7 +90,9 @@ func NewSidebarModel(scriptDiscovery contracts.ScriptDiscovery, configManager co
 			Background(lipgloss.Color("#44475A")).
 			Foreground(lipgloss.Color("#F8F8F2")),
 		Focused: lipgloss.NewStyle().
-			BorderForeground(lipgloss.Color("#BD93F9")),
+			Border(lipgloss.NormalBorder()).
+			BorderForeground(lipgloss.Color("#BD93F9")).
+			Padding(0, 1),
 		Loading: lipgloss.NewStyle().
 			Foreground(lipgloss.Color("#6272A4")).
 			Italic(true),
@@ -337,14 +338,15 @@ func (m SidebarModel) View() string {
 
 	baseStyle := m.style.Base
 	if m.focused {
-		baseStyle = baseStyle.Copy().Inherit(m.style.Focused)
+		baseStyle = m.style.Focused
 	}
 
 	// Force sidebar to fixed width of 35 characters to prevent layout shifts
+	// Account for borders (2 chars for left and right)
 	const fixedSidebarWidth = 35
 	return baseStyle.
-		Width(fixedSidebarWidth).
-		MaxWidth(fixedSidebarWidth).
+		Width(fixedSidebarWidth - 2).
+		MaxWidth(fixedSidebarWidth - 2).
 		Height(m.height).
 		MaxHeight(m.height).
 		Render(content.String())
