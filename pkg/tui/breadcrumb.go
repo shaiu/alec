@@ -5,6 +5,7 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/epilande/go-devicons"
 )
 
 type BreadcrumbModel struct {
@@ -62,7 +63,9 @@ func (m BreadcrumbModel) View() string {
 	if m.breadcrumbs != "" {
 		content = m.style.Text.Render(m.breadcrumbs)
 	} else {
-		content = m.style.Text.Render("■ Scripts") // Folder icon (inspired by icons/folder.svg)
+		// Use devicons for folder icon in default breadcrumb
+		style := devicons.IconForPath(".")
+		content = m.style.Text.Render(style.Icon + " Scripts")
 	}
 
 	breadcrumbBar := m.style.Base.Width(m.width).Render(content)

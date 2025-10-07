@@ -1,10 +1,13 @@
 module github.com/shaiu/alec
 
-go 1.21
+go 1.23.3
+
+toolchain go1.24.8
 
 require (
 	github.com/charmbracelet/bubbletea v0.25.0
 	github.com/charmbracelet/lipgloss v1.1.0
+	github.com/epilande/go-devicons v0.0.0-20250505162540-0661cab71a28
 	github.com/google/uuid v1.6.0
 	github.com/spf13/cobra v1.8.0
 	github.com/spf13/viper v1.18.2

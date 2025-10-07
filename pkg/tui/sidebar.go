@@ -10,6 +10,7 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/epilande/go-devicons"
 	"github.com/shaiu/alec/pkg/contracts"
 	"github.com/shaiu/alec/pkg/services"
 )
@@ -399,7 +400,7 @@ func (m *SidebarModel) renderScripts(content *strings.Builder) {
 }
 
 func (m SidebarModel) formatScriptLine(script contracts.ScriptInfo, selected bool) string {
-	icon := m.getScriptIcon(script.Type)
+	icon := m.getScriptIcon(script.Path)
 	name := script.Name
 
 	// Calculate available space more conservatively
@@ -429,7 +430,7 @@ func (m SidebarModel) formatScriptLine(script contracts.ScriptInfo, selected boo
 }
 
 func (m SidebarModel) formatSearchScriptLine(script contracts.ScriptInfo, selected bool) string {
-	icon := m.getScriptIcon(script.Type)
+	icon := m.getScriptIcon(script.Path)
 	name := script.Name
 
 	// Calculate available space more conservatively
@@ -489,9 +490,10 @@ func (m SidebarModel) highlightSearchMatch(text, query string) string {
 	return before + highlightedMatch + after
 }
 
-func (m SidebarModel) getScriptIcon(scriptType string) string {
-	// All script types use console icon (inspired by icons/console.svg)
-	return "▣" // Console/terminal icon for all scripts
+func (m SidebarModel) getScriptIcon(scriptPath string) string {
+	// Use go-devicons to get the appropriate Nerd Font icon for this file
+	style := devicons.IconForPath(scriptPath)
+	return style.Icon
 }
 
 func (m SidebarModel) GetSelectedScript() *contracts.ScriptInfo {
@@ -967,11 +969,13 @@ func (m SidebarModel) formatNavigationItemLine(item NavigationItem, selected boo
 			icon = "↑"
 			name = ".."
 		} else {
-			icon = "■" // Folder icon (inspired by icons/folder.svg)
+			// Use devicons for folder icons
+			style := devicons.IconForPath(item.Path)
+			icon = style.Icon
 			name = item.Name
 		}
 	} else {
-		icon = m.getScriptIcon(item.Script.Type)
+		icon = m.getScriptIcon(item.Path)
 		name = item.Name
 	}
 
