@@ -52,20 +52,15 @@ func runTUI(cmd *cobra.Command, args []string) error {
 
 	go func() {
 		<-sigChan
-		fmt.Println("\nShutting down...")
 		cancel()
 	}()
 
 	// Start the TUI
-	fmt.Println("Starting Alec Script Runner TUI...")
-	fmt.Println("Use 'q' or Ctrl+C to quit")
-
 	err = tuiManager.Start(ctx)
 	if err != nil {
 		return fmt.Errorf("TUI error: %w", err)
 	}
 
-	fmt.Println("TUI shutdown complete")
 	return nil
 }
 
