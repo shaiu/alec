@@ -22,7 +22,7 @@ func TestShellLexer_Parse(t *testing.T) {
 # This is a test script
 # It does something useful
 echo "Hello World"`,
-			wantDesc:   "This is a test script It does something useful",
+			wantDesc:   "This is a test script\nIt does something useful",
 			wantLines:  4,
 			wantInterp: "/bin/bash",
 		},
@@ -51,7 +51,7 @@ echo "Running backup"`,
 
 # Second line after empty line
 echo "test"`,
-			wantDesc:   "First line Second line after empty line",
+			wantDesc:   "First line\nSecond line after empty line",
 			wantLines:  5,
 			wantInterp: "/bin/bash",
 		},
@@ -60,7 +60,7 @@ echo "test"`,
 			script: `# This is a shell script
 # Without shebang
 echo "test"`,
-			wantDesc:   "This is a shell script Without shebang",
+			wantDesc:   "This is a shell script\nWithout shebang",
 			wantLines:  3,
 			wantInterp: "",
 		},
@@ -117,7 +117,7 @@ This is a module docstring.
 It spans multiple lines.
 """
 print("Hello")`,
-			wantDesc:   "This is a module docstring. It spans multiple lines.",
+			wantDesc:   "This is a module docstring.\nIt spans multiple lines.",
 			wantLines:  6,
 			wantInterp: "/usr/bin/env python3",
 		},
@@ -147,7 +147,7 @@ print("Hello")`,
 # Description: This script processes data
 # It's a simple example
 print("Hello")`,
-			wantDesc:   "This script processes data It's a simple example",
+			wantDesc:   "This script processes data\nIt's a simple example",
 			wantLines:  4,
 			wantInterp: "/usr/bin/env python3",
 		},

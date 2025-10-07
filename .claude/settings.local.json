@@ -6,7 +6,23 @@
       "Bash(go build:*)",
       "mcp__ddg-search__search",
       "Bash(go test:*)",
-      "Bash(chmod:*)"
+      "Bash(chmod:*)",
+      "Bash(git checkout:*)",
+      "Bash(git add:*)",
+      "Bash(git log:*)",
+      "Bash(git config:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(gh pr create:*)",
+      "Bash(git pull:*)",
+      "Bash(cat:*)",
+      "mcp__Context7__resolve-library-id",
+      "mcp__Context7__get-library-docs",
+      "Bash(test:*)",
+      "Bash(find:*)",
+      "Bash(make tag:*)",
+      "Bash(git tag:*)",
+      "Bash(go clean:*)"
     ],
     "deny": []
   }

@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/shaiu/alec/pkg/contracts"
 	"github.com/shaiu/alec/pkg/services"
 )
 
@@ -189,7 +190,7 @@ extensions:
 		configManager := services.NewConfigManagerService()
 
 		// Test valid configuration
-		validConfig, err := configManager.GetDefaultConfig()
+		validConfig := configManager.GetDefaultConfig()
 		if err := configManager.ValidateConfig(validConfig); err != nil {
 			t.Errorf("Default config should be valid: %v", err)
 		}
@@ -197,35 +198,35 @@ extensions:
 		// Test invalid configurations
 		invalidConfigs := []struct {
 			name   string
-			modify func(*services.AppConfig)
+			modify func(*contracts.AppConfig)
 		}{
 			{
 				name: "nil config",
-				modify: func(c *services.AppConfig) {
+				modify: func(c *contracts.AppConfig) {
 					// Will test nil config separately
 				},
 			},
 			{
 				name: "empty script directories",
-				modify: func(c *services.AppConfig) {
+				modify: func(c *contracts.AppConfig) {
 					c.ScriptDirectories = []string{}
 				},
 			},
 			{
 				name: "zero execution timeout",
-				modify: func(c *services.AppConfig) {
+				modify: func(c *contracts.AppConfig) {
 					c.Execution.Timeout = 0
 				},
 			},
 			{
 				name: "zero max output size",
-				modify: func(c *services.AppConfig) {
+				modify: func(c *contracts.AppConfig) {
 					c.Execution.MaxOutputSize = 0
 				},
 			},
 			{
 				name: "zero security max execution time",
-				modify: func(c *services.AppConfig) {
+				modify: func(c *contracts.AppConfig) {
 					c.Security.MaxExecutionTime = 0
 				},
 			},
@@ -250,7 +251,7 @@ extensions:
 	})
 
 	t.Run("Configuration Saving", func(t *testing.T) {
-		saveConfigPath := filepath.Join(testDir, "save-test-alec.yaml")
+		_ = filepath.Join(testDir, "save-test-alec.yaml")
 
 		configManager := services.NewConfigManagerService()
 		config := configManager.GetDefaultConfig()
@@ -282,7 +283,7 @@ extensions:
 		}
 
 		// Create override config
-		overrideConfig := &services.AppConfig{
+		overrideConfig := &contracts.AppConfig{
 			ScriptDirectories: []string{"./override-scripts"},
 			ScriptExtensions: map[string]string{
 				".js": "node",
@@ -368,7 +369,7 @@ extensions:
 
 	t.Run("Configuration File Permissions", func(t *testing.T) {
 		configManager := services.NewConfigManagerService()
-		config := configManager.GetDefaultConfig()
+		_ = configManager.GetDefaultConfig()
 
 		// Test that saving config creates file with secure permissions
 		// This would require actual file saving functionality
