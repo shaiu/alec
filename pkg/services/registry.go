@@ -1,8 +1,8 @@
 package services
 
 import (
-	"github.com/your-org/alec/pkg/contracts"
-	"github.com/your-org/alec/pkg/models"
+	"github.com/shaiu/alec/pkg/contracts"
+	"github.com/shaiu/alec/pkg/models"
 )
 
 // ServiceRegistry provides centralized access to all services

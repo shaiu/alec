@@ -9,9 +9,9 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
-	"github.com/your-org/alec/pkg/contracts"
-	"github.com/your-org/alec/pkg/models"
-	"github.com/your-org/alec/pkg/services"
+	"github.com/shaiu/alec/pkg/contracts"
+	"github.com/shaiu/alec/pkg/models"
+	"github.com/shaiu/alec/pkg/services"
 )
 
 var (

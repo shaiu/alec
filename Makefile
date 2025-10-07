@@ -1,7 +1,7 @@
 # Alec - Script-to-CLI TUI System
 # Makefile for build, test, lint, and install targets
 
-.PHONY: build test lint install clean deps fmt vet cover bench
+.PHONY: build test lint install clean deps fmt vet cover bench release release-test tag
 
 # Build configuration
 BINARY_NAME=alec
@@ -97,21 +97,44 @@ dev-deps:
 ci-test: deps fmt vet lint
 	go test -v -race -coverprofile=coverage.out ./...
 
+# Release targets
+release-test:
+	@echo "Testing release configuration..."
+	goreleaser release --snapshot --clean --skip=publish
+
+release:
+	@echo "Release requires a git tag (e.g., v1.0.0)"
+	@echo "Use 'make tag VERSION=1.0.0' to create and push a tag"
+	@echo "GitHub Actions will automatically build and release when tag is pushed"
+
+tag:
+	@if [ -z "$(VERSION)" ]; then \
+		echo "ERROR: VERSION is required. Usage: make tag VERSION=1.0.0"; \
+		exit 1; \
+	fi
+	@echo "Creating tag v$(VERSION)..."
+	git tag -a v$(VERSION) -m "Release v$(VERSION)"
+	@echo "Push tag with: git push origin v$(VERSION)"
+	@echo "This will trigger automated release via GitHub Actions"
+
 # Help
 help:
 	@echo "Available targets:"
-	@echo "  build       - Build the application"
-	@echo "  test        - Run tests"
-	@echo "  lint        - Run linter"
-	@echo "  install     - Install to GOPATH/bin"
-	@echo "  clean       - Clean build artifacts"
-	@echo "  deps        - Install dependencies"
-	@echo "  fmt         - Format code"
-	@echo "  vet         - Run go vet"
-	@echo "  cover       - Run tests with coverage"
-	@echo "  bench       - Run benchmarks"
-	@echo "  build-all   - Build for all platforms"
-	@echo "  run         - Build and run"
-	@echo "  run-sample  - Run with sample scripts"
-	@echo "  dev-deps    - Install development tools"
-	@echo "  ci-test     - Run CI tests"
+	@echo "  build        - Build the application"
+	@echo "  test         - Run tests"
+	@echo "  lint         - Run linter"
+	@echo "  install      - Install to GOPATH/bin"
+	@echo "  clean        - Clean build artifacts"
+	@echo "  deps         - Install dependencies"
+	@echo "  fmt          - Format code"
+	@echo "  vet          - Run go vet"
+	@echo "  cover        - Run tests with coverage"
+	@echo "  bench        - Run benchmarks"
+	@echo "  build-all    - Build for all platforms"
+	@echo "  run          - Build and run"
+	@echo "  run-sample   - Run with sample scripts"
+	@echo "  dev-deps     - Install development tools"
+	@echo "  ci-test      - Run CI tests"
+	@echo "  release-test - Test release configuration locally"
+	@echo "  tag          - Create and prepare version tag (requires VERSION=x.y.z)"
+	@echo "  release      - Show release instructions"

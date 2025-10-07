@@ -22,7 +22,7 @@ linters-settings:
     statements: 40
 
   goimports:
-    local-prefixes: github.com/your-org/alec
+    local-prefixes: github.com/shaiu/alec
 
   govet:
     enable-all: true

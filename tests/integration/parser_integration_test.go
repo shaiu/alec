@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/your-org/alec/pkg/parser"
+	"github.com/shaiu/alec/pkg/parser"
 )
 
 // TestParseRealScripts tests parsing of actual script files

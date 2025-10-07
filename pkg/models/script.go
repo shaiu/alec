@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/your-org/alec/pkg/parser"
+	"github.com/shaiu/alec/pkg/parser"
 )
 
 // ScriptStatus represents the current state of a script

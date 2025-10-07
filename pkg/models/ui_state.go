@@ -3,7 +3,7 @@ package models
 import (
 	"fmt"
 
-	"github.com/your-org/alec/pkg/contracts"
+	"github.com/shaiu/alec/pkg/contracts"
 )
 
 // UIState represents the current state of the Terminal User Interface

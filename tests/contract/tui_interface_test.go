@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/your-org/alec/pkg/contracts"
+	"github.com/shaiu/alec/pkg/contracts"
 )
 
 // TestTUIManagerContract verifies that any implementation of TUIManager

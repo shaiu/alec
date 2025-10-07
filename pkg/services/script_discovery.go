@@ -10,9 +10,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/your-org/alec/pkg/contracts"
-	"github.com/your-org/alec/pkg/models"
-	"github.com/your-org/alec/pkg/parser"
+	"github.com/shaiu/alec/pkg/contracts"
+	"github.com/shaiu/alec/pkg/models"
+	"github.com/shaiu/alec/pkg/parser"
 )
 
 // ScriptDiscoveryService implements the ScriptDiscovery contract

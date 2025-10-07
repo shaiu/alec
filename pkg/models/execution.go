@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/your-org/alec/pkg/contracts"
+	"github.com/shaiu/alec/pkg/contracts"
 )
 
 // ExecutionSession represents a single script execution instance with runtime state
