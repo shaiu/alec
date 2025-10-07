@@ -30,7 +30,6 @@ func NewHeaderModel() HeaderModel {
 	style := HeaderStyle{
 		Base: lipgloss.NewStyle().
 			Foreground(lipgloss.Color("#F8F8F2")).
-			Background(lipgloss.Color("#44475A")).
 			Padding(0, 2),
 		Title: lipgloss.NewStyle().
 			Bold(true).
@@ -84,16 +83,15 @@ func (m HeaderModel) View() string {
 	var headerContent string
 	if m.status != "" {
 		status := m.style.Status.Render(m.status)
-		// Calculate available width safely
 		leftWidth := lipgloss.Width(leftSide)
 		statusWidth := lipgloss.Width(status)
-		totalUsed := leftWidth + statusWidth + 4 // 4 for padding
+		totalUsed := leftWidth + statusWidth + 4
 
 		var padding string
 		if m.width > totalUsed {
 			padding = strings.Repeat(" ", m.width-totalUsed)
 		} else {
-			padding = "  " // Minimal padding if width is too small
+			padding = "  "
 		}
 
 		headerContent = lipgloss.JoinHorizontal(
@@ -103,7 +101,6 @@ func (m HeaderModel) View() string {
 			status,
 		)
 	} else {
-		// No status, just left side with padding
 		leftWidth := lipgloss.Width(leftSide)
 		if m.width > leftWidth+4 {
 			padding := strings.Repeat(" ", m.width-leftWidth-4)
@@ -113,13 +110,8 @@ func (m HeaderModel) View() string {
 		}
 	}
 
-	header := m.style.Base.
-		Width(m.width).
-		Render(headerContent)
-
-	border := m.style.Border.
-		Width(m.width).
-		Render(strings.Repeat("─", m.width))
+	header := m.style.Base.Width(m.width).Render(headerContent)
+	border := m.style.Border.Width(m.width).Render(strings.Repeat("─", m.width))
 
 	return header + "\n" + border
 }

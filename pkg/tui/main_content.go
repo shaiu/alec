@@ -3,6 +3,7 @@ package tui
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -26,6 +27,8 @@ type MainContentModel struct {
 
 	selectedScript *contracts.ScriptInfo
 
+	configManager contracts.ConfigManager
+
 	style MainContentStyle
 }
 
@@ -42,7 +45,7 @@ type MainContentStyle struct {
 	Focused    lipgloss.Style
 }
 
-func NewMainContentModel() MainContentModel {
+func NewMainContentModel(configManager contracts.ConfigManager) MainContentModel {
 	style := MainContentStyle{
 		Base: lipgloss.NewStyle().
 			PaddingLeft(1).
@@ -72,8 +75,9 @@ func NewMainContentModel() MainContentModel {
 	}
 
 	return MainContentModel{
-		style:       style,
-		contentView: ContentViewWelcome,
+		style:         style,
+		contentView:   ContentViewWelcome,
+		configManager: configManager,
 	}
 }
 
@@ -109,8 +113,8 @@ func (m MainContentModel) View() string {
 		content = m.renderWelcome()
 	}
 
-	// Truncate content to fit within allocated height to prevent overflow
-	content = m.truncateToHeight(content, m.height)
+	// Don't truncate - renderScriptDetails already handles sizing appropriately
+	// to ensure execution instructions are visible
 
 	baseStyle := m.style.Base
 	if m.focused {
@@ -153,17 +157,16 @@ func (m MainContentModel) renderScriptDetails() string {
 	content.WriteString(title + "\n\n")
 
 	// Script information
-	content.WriteString("📁 " + m.style.Subtitle.Render("Location: ") + m.selectedScript.Path + "\n")
-	content.WriteString("🔧 " + m.style.Subtitle.Render("Type: ") + m.selectedScript.Type + "\n")
+	content.WriteString("• " + m.style.Subtitle.Render("Type: ") + m.selectedScript.Type + "\n")
 
 	// Show interpreter if available from metadata
 	if m.selectedScript.Metadata != nil && m.selectedScript.Metadata.Interpreter != "" {
-		content.WriteString("⚙️  " + m.style.Subtitle.Render("Interpreter: ") + m.selectedScript.Metadata.Interpreter + "\n")
+		content.WriteString("• " + m.style.Subtitle.Render("Interpreter: ") + m.selectedScript.Metadata.Interpreter + "\n")
 	}
 
 	// Get file info if available
 	if stat, err := os.Stat(m.selectedScript.Path); err == nil {
-		content.WriteString("📅 " + m.style.Subtitle.Render("Modified: ") + stat.ModTime().Format("2006-01-02 15:04:05") + "\n")
+		content.WriteString("• " + m.style.Subtitle.Render("Modified: ") + stat.ModTime().Format("2006-01-02 15:04:05") + "\n")
 	}
 
 	content.WriteString("\n")
@@ -178,7 +181,7 @@ func (m MainContentModel) renderScriptDetails() string {
 	}
 
 	if description != "" {
-		content.WriteString("📝 " + m.style.Subtitle.Render("Description:") + "\n")
+		content.WriteString("• " + m.style.Subtitle.Render("Description:") + "\n")
 		content.WriteString(m.style.Content.Render(description) + "\n\n")
 	}
 
@@ -195,7 +198,31 @@ func (m MainContentModel) renderScriptDetails() string {
 			previewTitle = "Full Script"
 		}
 
-		content.WriteString("📄 " + m.style.Subtitle.Render(previewTitle) + "\n\n")
+		content.WriteString("• " + m.style.Subtitle.Render(previewTitle) + "\n\n")
+
+		// Limit preview to a conservative maximum to ensure execution instructions are always visible
+		// Be very aggressive here because lipgloss padding/styling adds significant height
+		maxPreviewLines := 10
+
+		// If we have more height available, allow more preview lines
+		// But never exceed half the available height to ensure bottom is visible
+		if m.height > 30 {
+			maxPreviewLines = (m.height / 2) - 10
+		}
+
+		if maxPreviewLines < 5 {
+			maxPreviewLines = 5
+		}
+
+		previewContent := m.selectedScript.Metadata.FullContent
+		previewLines := strings.Split(previewContent, "\n")
+		isTruncatedForDisplay := false
+
+		if len(previewLines) > maxPreviewLines {
+			previewLines = previewLines[:maxPreviewLines]
+			previewContent = strings.Join(previewLines, "\n")
+			isTruncatedForDisplay = true
+		}
 
 		// Render the script content with subtle styling
 		previewStyle := lipgloss.NewStyle().
@@ -204,9 +231,9 @@ func (m MainContentModel) renderScriptDetails() string {
 			Padding(1).
 			MarginBottom(1)
 
-		content.WriteString(previewStyle.Render(m.selectedScript.Metadata.FullContent) + "\n")
+		content.WriteString(previewStyle.Render(previewContent) + "\n")
 
-		if m.selectedScript.Metadata.IsTruncated {
+		if isTruncatedForDisplay || m.selectedScript.Metadata.IsTruncated {
 			truncateNote := m.style.Subtitle.Render("... (script continues)")
 			content.WriteString(truncateNote + "\n")
 		}
@@ -233,6 +260,45 @@ func (m MainContentModel) getScriptIcon(scriptType string) string {
 	default:
 		return "📄"
 	}
+}
+
+// getDisplayPath computes a user-friendly relative path from configured script directories
+func (m MainContentModel) getDisplayPath(fullPath string) string {
+	// Get configured script directories
+	config, err := m.configManager.LoadConfig()
+	if err == nil && config != nil && len(config.ScriptDirectories) > 0 {
+		// Try to find which script directory this file belongs to
+		for _, scriptDir := range config.ScriptDirectories {
+			// Expand home directory if needed
+			expandedDir := scriptDir
+			if strings.HasPrefix(scriptDir, "~/") {
+				homeDir, err := os.UserHomeDir()
+				if err == nil {
+					expandedDir = filepath.Join(homeDir, scriptDir[2:])
+				}
+			}
+
+			// Clean and make absolute
+			expandedDir, err := filepath.Abs(expandedDir)
+			if err != nil {
+				continue
+			}
+
+			// Check if the script is under this directory
+			if strings.HasPrefix(fullPath, expandedDir) {
+				relPath, err := filepath.Rel(expandedDir, fullPath)
+				if err == nil {
+					return relPath
+				}
+			}
+		}
+	}
+
+	// Fallback: return just the filename and parent directory
+	dir := filepath.Dir(fullPath)
+	parentDir := filepath.Base(dir)
+	filename := filepath.Base(fullPath)
+	return filepath.Join(parentDir, filename)
 }
 
 func (m MainContentModel) extractScriptDescription(scriptPath string) string {
@@ -315,18 +381,35 @@ func (m MainContentModel) truncateToHeight(content string, maxHeight int) string
 
 	lines := strings.Split(content, "\n")
 
-	// Reserve space for truncation indicator if needed
-	availableLines := maxHeight
-	if len(lines) > availableLines {
-		// Take only the lines that fit, minus one for the indicator
-		truncatedLines := lines[:availableLines-1]
-
-		// Add truncation indicator
-		indicator := m.style.Subtitle.Render("... (content truncated, use arrow keys to scroll)")
-		truncatedLines = append(truncatedLines, indicator)
-
-		return strings.Join(truncatedLines, "\n")
+	// If content fits, return as-is
+	if len(lines) <= maxHeight {
+		return content
 	}
 
-	return content
+	// Reserve space at bottom for critical execution instructions (last 3 lines)
+	// These typically include the separator, "Press Enter" message, and description
+	const reservedBottomLines = 3
+	const truncationIndicatorLines = 1
+
+	// Calculate how many lines we can show from the top
+	availableTopLines := maxHeight - reservedBottomLines - truncationIndicatorLines
+	if availableTopLines < 1 {
+		availableTopLines = 1
+	}
+
+	// Take top lines
+	result := make([]string, 0, maxHeight)
+	result = append(result, lines[:availableTopLines]...)
+
+	// Add truncation indicator
+	indicator := m.style.Subtitle.Render("... (content truncated, scroll to see more)")
+	result = append(result, indicator)
+
+	// Add bottom lines (execution instructions)
+	bottomStartIndex := len(lines) - reservedBottomLines
+	if bottomStartIndex > availableTopLines {
+		result = append(result, lines[bottomStartIndex:]...)
+	}
+
+	return strings.Join(result, "\n")
 }

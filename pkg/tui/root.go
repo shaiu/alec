@@ -2,8 +2,10 @@ package tui
 
 import (
 	"fmt"
+	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -18,6 +20,7 @@ type RootModel struct {
 	sidebar     SidebarModel
 	mainContent MainContentModel
 	header      HeaderModel
+	breadcrumb  BreadcrumbModel
 	footer      FooterModel
 
 	registry *services.ServiceRegistry
@@ -43,7 +46,7 @@ type ScriptExecutionCompleteMsg struct {
 
 func NewRootModel(registry *services.ServiceRegistry) *RootModel {
 	sidebar := NewSidebarModel(registry.GetScriptDiscovery(), registry.GetConfigManager())
-	mainContent := NewMainContentModel()
+	mainContent := NewMainContentModel(registry.GetConfigManager())
 
 	// Set initial focus state
 	sidebar.SetFocused(true)
@@ -54,6 +57,7 @@ func NewRootModel(registry *services.ServiceRegistry) *RootModel {
 		sidebar:     sidebar,
 		mainContent: mainContent,
 		header:      NewHeaderModel(),
+		breadcrumb:  NewBreadcrumbModel(),
 		footer:      NewFooterModel(),
 	}
 }
@@ -63,6 +67,7 @@ func (m *RootModel) Init() tea.Cmd {
 		m.sidebar.Init(),
 		m.mainContent.Init(),
 		m.header.Init(),
+		m.breadcrumb.Init(),
 		m.footer.Init(),
 	)
 }
@@ -104,6 +109,10 @@ func (m *RootModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		model, cmd = m.header.Update(msg)
 		m.header = model.(HeaderModel)
+		cmds = append(cmds, cmd)
+
+		model, cmd = m.breadcrumb.Update(msg)
+		m.breadcrumb = model.(BreadcrumbModel)
 		cmds = append(cmds, cmd)
 
 		model, cmd = m.footer.Update(msg)
@@ -216,6 +225,10 @@ func (m *RootModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.header = model.(HeaderModel)
 		cmds = append(cmds, cmd)
 
+		model, cmd = m.breadcrumb.Update(msg)
+		m.breadcrumb = model.(BreadcrumbModel)
+		cmds = append(cmds, cmd)
+
 		model, cmd = m.footer.Update(msg)
 		m.footer = model.(FooterModel)
 		cmds = append(cmds, cmd)
@@ -233,16 +246,18 @@ func (m *RootModel) View() string {
 	}
 
 	header := m.header.View()
+	breadcrumb := m.breadcrumb.View()
 	footer := m.footer.View()
 
-	// Ensure header and footer have their heights constrained
+	// Ensure header, breadcrumb, and footer have their heights constrained
 	headerHeight := lipgloss.Height(header)
+	breadcrumbHeight := lipgloss.Height(breadcrumb)
 	footerHeight := lipgloss.Height(footer)
 
 	// Calculate actual available content height accounting for margins
 	const marginVertical = 2 // 1 line top + 1 line bottom
 	availableHeight := m.height - marginVertical
-	contentHeight := availableHeight - headerHeight - footerHeight
+	contentHeight := availableHeight - headerHeight - breadcrumbHeight - footerHeight
 
 	// Ensure content height is properly constrained
 	if contentHeight < 1 {
@@ -268,6 +283,7 @@ func (m *RootModel) View() string {
 	app := lipgloss.JoinVertical(
 		lipgloss.Left,
 		header,
+		breadcrumb,
 		content,
 		footer,
 	)
@@ -287,6 +303,7 @@ const (
 	MinSidebarWidth     = 12   // Very narrow minimum
 	DefaultSidebarRatio = 0.12 // Only 12% of screen width
 	HeaderHeight        = 3
+	BreadcrumbHeight    = 2
 	FooterHeight        = 3
 	MinContentHeight    = 10
 )
@@ -305,19 +322,22 @@ func (m *RootModel) updateLayout() {
 	// Add overlap to give main content more horizontal space (accounting for margins)
 	const horizontalOverlap = 6 // Compensate for margins and give extra space
 	mainContentWidth := m.width - sidebarWidth + horizontalOverlap
-	contentHeight := m.height - HeaderHeight - FooterHeight - 2 // -2 for top/bottom margin
+	contentHeight := m.height - HeaderHeight - BreadcrumbHeight - FooterHeight - 2 // -2 for top/bottom margin
 
 	// Ensure minimum content height
 	if contentHeight < MinContentHeight {
 		// Reduce header/footer height for very small terminals
 		adjustedHeaderHeight := max(1, HeaderHeight-2)
+		adjustedBreadcrumbHeight := max(1, BreadcrumbHeight-1)
 		adjustedFooterHeight := max(1, FooterHeight-2)
-		contentHeight = m.height - adjustedHeaderHeight - adjustedFooterHeight
+		contentHeight = m.height - adjustedHeaderHeight - adjustedBreadcrumbHeight - adjustedFooterHeight
 
 		m.header.SetSize(m.width, adjustedHeaderHeight)
+		m.breadcrumb.SetSize(m.width, adjustedBreadcrumbHeight)
 		m.footer.SetSize(m.width, adjustedFooterHeight)
 	} else {
 		m.header.SetSize(m.width, HeaderHeight)
+		m.breadcrumb.SetSize(m.width, BreadcrumbHeight)
 		m.footer.SetSize(m.width, FooterHeight)
 	}
 
@@ -331,19 +351,21 @@ func (m *RootModel) handleSmallTerminal() {
 	// For very small terminals, use a simplified single-column layout
 	if m.width < 60 {
 		// Hide sidebar in extremely narrow terminals
-		m.sidebar.SetSize(0, m.height-6)           // -4 for header/footer, -2 for margin
-		m.mainContent.SetSize(m.width, m.height-6) // -4 for header/footer, -2 for margin
+		m.sidebar.SetSize(0, m.height-8)           // -6 for header/breadcrumb/footer, -2 for margin
+		m.mainContent.SetSize(m.width, m.height-8) // -6 for header/breadcrumb/footer, -2 for margin
 		m.header.SetSize(m.width, 2)
+		m.breadcrumb.SetSize(m.width, 2)
 		m.footer.SetSize(m.width, 2)
 	} else {
 		// Use minimum sizes for small but usable terminals
 		sidebarWidth := MinSidebarWidth
 		mainContentWidth := m.width - sidebarWidth
-		contentHeight := max(MinContentHeight, m.height-6) // -4 for header/footer, -2 for margin
+		contentHeight := max(MinContentHeight, m.height-8) // -6 for header/breadcrumb/footer, -2 for margin
 
 		m.sidebar.SetSize(sidebarWidth, contentHeight)
 		m.mainContent.SetSize(mainContentWidth, contentHeight)
 		m.header.SetSize(m.width, 2)
+		m.breadcrumb.SetSize(m.width, 2)
 		m.footer.SetSize(m.width, 2)
 	}
 }
@@ -459,6 +481,10 @@ func (m *RootModel) routeMessage(msg tea.Msg) []tea.Cmd {
 		cmds = append(cmds, cmd)
 	}
 
+	if cmd := m.breadcrumb.ProcessMessage(msg); cmd != nil {
+		cmds = append(cmds, cmd)
+	}
+
 	if cmd := m.footer.ProcessMessage(msg); cmd != nil {
 		cmds = append(cmds, cmd)
 	}
@@ -495,6 +521,60 @@ func (m *RootModel) buildScriptCommand(script contracts.ScriptInfo) *exec.Cmd {
 	}
 }
 
+// buildBreadcrumbs creates a breadcrumb trail from the current path
+func (m *RootModel) buildBreadcrumbs(currentPath string) string {
+	if currentPath == "" || currentPath == "." {
+		return "📁 Scripts"
+	}
+
+	// Get configured script directories to find the base
+	config, err := m.registry.GetConfigManager().LoadConfig()
+	if err != nil || config == nil {
+		return "📁 " + filepath.Base(currentPath)
+	}
+
+	// Find which script directory this path belongs to
+	var baseDir string
+	var baseName string
+	for _, scriptDir := range config.ScriptDirectories {
+		expandedDir := scriptDir
+		if strings.HasPrefix(scriptDir, "~/") {
+			home, err := os.UserHomeDir()
+			if err == nil {
+				expandedDir = filepath.Join(home, scriptDir[2:])
+			}
+		}
+
+		expandedDir, _ = filepath.Abs(expandedDir)
+		if strings.HasPrefix(currentPath, expandedDir) {
+			baseDir = expandedDir
+			baseName = filepath.Base(scriptDir)
+			break
+		}
+	}
+
+	// Build breadcrumb trail
+	if baseDir == "" {
+		return "📁 " + filepath.Base(currentPath)
+	}
+
+	relPath, err := filepath.Rel(baseDir, currentPath)
+	if err != nil || relPath == "." {
+		return "📁 " + baseName
+	}
+
+	// Split path into parts and join with separator
+	parts := strings.Split(relPath, string(filepath.Separator))
+	breadcrumb := "📁 " + baseName
+	for _, part := range parts {
+		if part != "" && part != "." {
+			breadcrumb += " › " + part
+		}
+	}
+
+	return breadcrumb
+}
+
 // updateFooterScriptCount updates the footer with current script count and other information
 func (m *RootModel) updateFooterScriptCount() {
 	// Update script count
@@ -516,7 +596,7 @@ func (m *RootModel) updateFooterScriptCount() {
 	}
 	m.footer.SetScriptCount(countText)
 
-	// Update current path
+	// Update current path in footer
 	currentPath := m.sidebar.GetCurrentPath()
 	if currentPath != "" {
 		// Clean up path display - show relative path or just folder name
@@ -525,8 +605,13 @@ func (m *RootModel) updateFooterScriptCount() {
 			pathDisplay = "root"
 		}
 		m.footer.SetCurrentPath(pathDisplay)
+
+		// Update breadcrumbs in breadcrumb component
+		breadcrumbs := m.buildBreadcrumbs(currentPath)
+		m.breadcrumb.SetBreadcrumbs(breadcrumbs)
 	} else {
 		m.footer.SetCurrentPath("")
+		m.breadcrumb.ClearBreadcrumbs()
 	}
 
 	// Update selection position

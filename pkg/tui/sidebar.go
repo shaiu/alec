@@ -318,12 +318,8 @@ func (m SidebarModel) View() string {
 			content.WriteString(m.style.Loading.Render(helpText) + "\n")
 		}
 	} else {
-		// Show current directory breadcrumb
-		pathDisplay := filepath.Base(m.currentPath)
-		if pathDisplay == "." {
-			pathDisplay = "Scripts"
-		}
-		title := m.style.Title.Render("📁 " + pathDisplay)
+		// Show title
+		title := m.style.Title.Render("Scripts")
 		content.WriteString(title + "\n\n")
 	}
 
