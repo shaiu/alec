@@ -90,7 +90,7 @@ brews:
     homepage: "https://github.com/shaiu/alec"
     description: "Terminal UI for organizing and executing scripts without CLI maintenance overhead"
     license: "MIT"
-    folder: Formula
+    directory: Formula
     install: |
       bin.install "alec"
     test: |
