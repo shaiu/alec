@@ -2,7 +2,8 @@
 
 **Feature Branch**: `001-the-idea-was`
 **Created**: 2025-09-18
-**Status**: Draft
+**Last Updated**: 2025-01-07
+**Status**: Implemented
 **Input**: User description: "The idea was to have a TUI (Terminal UI) that could enable developers to write their own CLI without worrying about writing the actual CLI. This way, developers can focus on writing their usual shell scripts (or Python scripts) and pick it up in the CLI.
 
 Essentially, you should have a dedicated directory organized in a structured hierarchy of folders and scripts to hold all the necessary bash scripts.
@@ -82,6 +83,9 @@ As a developer, I want to organize my scripts in a directory structure and have 
 - What occurs when a script has long execution times?
 - How are script errors and failures displayed to the user?
 - What happens when the script directory structure changes while the TUI is running?
+- How are multi-line descriptions with line breaks displayed in the preview?
+- What happens when script names exceed the sidebar width?
+- How does the breadcrumb display handle deeply nested directory structures?
 
 ## Requirements *(mandatory)*
 
@@ -101,7 +105,10 @@ As a developer, I want to organize my scripts in a directory structure and have 
 - **FR-013**: System MUST provide a clean, minimal UI design suitable for daily developer use with appropriate icons for script types
 - **FR-014**: System MUST provide an easy installation mechanism via binary distribution or source build
 - **FR-015**: System MUST provide contextual search functionality that filters scripts within the current directory context
-- **FR-016**: System MUST maintain a fixed sidebar width (24 characters) to prevent layout changes during navigation
+- **FR-016**: System MUST maintain a fixed sidebar width (35 characters) to prevent layout changes during navigation and accommodate longer script names
+- **FR-017**: System MUST extract and display script metadata including descriptions, interpreters, and content previews using dedicated parser/lexer components
+- **FR-018**: System MUST display breadcrumb navigation showing the current directory path hierarchy
+- **FR-019**: System MUST preserve line breaks in multi-line script descriptions extracted from comments or docstrings
 
 ### Key Entities *(include if feature involves data)*
 - **Script**: Represents an executable file (shell/Python) with metadata like name, path, permissions, and execution status
@@ -140,5 +147,64 @@ As a developer, I want to organize my scripts in a directory structure and have 
 - [x] Requirements generated
 - [x] Entities identified
 - [x] Review checklist passed
+
+---
+
+## Implementation Status
+*Updated: 2025-01-07*
+
+### Core Features (FR-001 to FR-015)
+- ✅ **FR-001**: Script discovery - Fully implemented with recursive directory scanning
+- ✅ **FR-002**: Multi-language support - Shell (.sh), Python (.py), Node (.js) supported
+- ✅ **FR-003**: TUI interface - Complete with Bubble Tea framework
+- ✅ **FR-004**: Hierarchical navigation - Directory tree with enter/back navigation
+- ✅ **FR-005**: Script execution - TUI exits and passes control to script
+- ✅ **FR-006**: Configurable directories - YAML configuration with script_dirs
+- ✅ **FR-007**: Manual refresh - 'r' key in TUI refreshes script list
+- ✅ **FR-008**: Error handling - Graceful error messages throughout
+- ✅ **FR-009**: Basic execution - No argument passing (as designed for v1)
+- ✅ **FR-010**: User permissions - Scripts execute with current user permissions
+- ✅ **FR-011**: Interactive & CLI modes - TUI (default) + CLI commands (list, run, config)
+- ✅ **FR-012**: Responsive rendering - Terminal size detection and layout adjustment
+- ✅ **FR-013**: Clean UI design - Minimal design with type-specific icons
+- ✅ **FR-014**: Easy installation - Go build system, binary distribution ready
+- ✅ **FR-015**: Contextual search - '/' activates search within current directory
+
+### Enhanced Features (FR-016 to FR-019)
+- ✅ **FR-016**: Fixed sidebar width - 35 characters (updated from 24 in PR #5)
+- ✅ **FR-017**: Metadata extraction - Complete parser/lexer system for shell and Python
+  - Shell script parser extracts shebang, description from comments, markers
+  - Python parser extracts docstrings, comment descriptions, interpreter
+  - Metadata includes: Interpreter, Description, FullContent, PreviewLines, LineCount, IsTruncated
+- ✅ **FR-018**: Breadcrumb navigation - Dedicated component showing path hierarchy
+- ✅ **FR-019**: Line break preservation - Multi-line descriptions display with formatting (PR #5)
+
+### Implementation Components
+**Core Models** (`pkg/models/`):
+- Script, Directory, ExecutionSession, Configuration, UIState
+
+**Services** (`pkg/services/`):
+- ScriptDiscovery, ScriptExecution, ConfigManager, SecurityValidator, ServiceRegistry
+
+**Parser System** (`pkg/parser/`):
+- Lexer interface, ShellLexer, PythonLexer, Metadata extraction
+
+**TUI Components** (`pkg/tui/`):
+- RootModel (compositor), SidebarModel, MainContentModel, HeaderModel, FooterModel, BreadcrumbModel, TUIManager
+
+**CLI Commands** (`cmd/alec/`):
+- list, run, config (show/edit/reset), refresh, version, demo
+
+### Recent Enhancements
+- **PR #5 (2025-01-07)**: Increased sidebar width to 35 chars, preserved description line breaks
+- **PR #4**: Added dedicated breadcrumb row for navigation context
+- **PR #3**: Implemented parser/lexer system with metadata extraction
+- **PR #2**: Fixed UI overflow and layout issues
+- **PR #1**: Initial TUI system implementation
+
+### Known Limitations (By Design - v1)
+- No argument passing to scripts (planned for v2)
+- Manual refresh only (no auto-watch)
+- TUI exits on script execution (by design for full terminal control)
 
 ---

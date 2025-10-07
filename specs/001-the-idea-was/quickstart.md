@@ -1,5 +1,8 @@
 # Quick Start Guide: Script-to-CLI TUI System
 
+**Last Updated**: 2025-01-07
+**Implementation Status**: All features documented here are fully implemented
+
 ## Installation
 
 ### Download and Install
@@ -91,6 +94,12 @@ alec -d ./scripts -d ~/tools
 - **Esc**: Exit search mode
 - **r**: Refresh script list
 - **q** or **Ctrl+C**: Quit application
+
+**UI Features**:
+- Breadcrumb navigation row shows current path (e.g., "📁 scripts › database › backups")
+- Script descriptions with preserved line breaks displayed in main content
+- Script metadata includes interpreter, modification time, and preview
+- Sidebar width: 35 characters (wide enough for most script names)
 
 #### Execution
 1. Navigate to desired script using ↑/↓ or k/j

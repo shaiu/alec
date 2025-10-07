@@ -1,5 +1,7 @@
 # Phase 1: Data Model
 
+**Last Updated**: 2025-01-07
+
 ## Core Entities
 
 ### Script
@@ -16,6 +18,7 @@ Represents an executable script file with associated metadata.
 - `IsExecutable`: Boolean flag for execution permission
 - `Description`: Optional description from script comments
 - `Tags`: Array of user-defined tags
+- `Metadata`: Reference to ScriptMetadata entity (if parsed)
 
 **Validation Rules**:
 - Path must be within allowed directories (FR-006)
@@ -121,8 +124,9 @@ Represents the current state of the Terminal User Interface.
 - `CurrentPath`: Current directory being viewed
 - `TerminalWidth`: Current terminal width
 - `TerminalHeight`: Current terminal height
-- `SidebarWidth`: Fixed at 24 characters to prevent layout shifts
+- `SidebarWidth`: Fixed at 35 characters to prevent layout shifts (updated from 24 to accommodate longer script names)
 - `MainWidth`: Calculated as terminal width minus sidebar width
+- `BreadcrumbPath`: Current breadcrumb trail for navigation context
 - `FocusedComponent`: Currently focused UI component (sidebar always focused in v1)
 - `SearchMode`: Boolean indicating if search mode is active
 - `SearchQuery`: Current search/filter query string
@@ -135,9 +139,59 @@ Represents the current state of the Terminal User Interface.
 - SearchQuery must be valid string for case-insensitive filtering
 
 **Calculated Fields**:
-- SidebarWidth: Fixed at 24 characters (not calculated)
+- SidebarWidth: Fixed at 35 characters (not calculated, updated from 24 in implementation)
 - MainWidth: TerminalWidth - SidebarWidth - borders/padding
 - IsResponsive: Boolean indicating if terminal is large enough (minimum 80x24)
+
+### ScriptMetadata
+Represents parsed metadata extracted from script file content using dedicated lexer/parser components.
+
+**Fields**:
+- `Interpreter`: Detected interpreter from shebang line (e.g., "/bin/bash", "/usr/bin/env python3")
+- `Description`: Extracted description from comments or docstrings (preserves line breaks)
+- `FullContent`: Complete script content or truncated preview
+- `PreviewLines`: Number of lines in preview
+- `LineCount`: Total line count in full script
+- `IsTruncated`: Boolean flag indicating if preview is truncated
+- `DescriptionMaxChars`: Maximum characters for description (default: 300)
+- `MaxPreviewLines`: Maximum lines for preview display (default: 50)
+- `FullScriptThreshold`: Line count threshold for full vs preview (default: 30)
+
+**Validation Rules**:
+- Description must preserve original line breaks (newlines, not spaces)
+- FullContent must not exceed memory limits
+- LineCount must match actual script lines
+- IsTruncated correctly reflects preview state
+
+**Parser Rules** (Shell Scripts):
+- Extract description from header comment block
+- Skip shebang line (#!)
+- Support custom markers: "# Description:", "# @desc", "# Summary:"
+- Join multi-line comments with newlines (not spaces)
+
+**Parser Rules** (Python Scripts):
+- Prioritize module docstrings (""" or ''')
+- Fallback to header comment block if no docstring
+- Extract from first 20 lines only
+- Join docstring lines with newlines
+
+### BreadcrumbModel
+Represents the navigation breadcrumb display component.
+
+**Fields**:
+- `Breadcrumbs`: Formatted breadcrumb trail string
+- `Width`: Available width for breadcrumb display
+- `Height`: Fixed height (typically 2 lines: content + border)
+
+**Validation Rules**:
+- Must fit within terminal width
+- Path parts separated by " › " character
+- Root directory shows base script directory name
+
+**Display Format**:
+```
+📁 scripts › database › backups
+```
 
 ## Entity Relationships
 
@@ -145,17 +199,24 @@ Represents the current state of the Terminal User Interface.
 Configuration 1:N Directory (script directories)
 Directory 1:N Directory (parent-child hierarchy)
 Directory 1:N Script (contains scripts)
+Script 1:1 ScriptMetadata (parsed metadata)
 Script 1:N ExecutionSession (execution history)
 UIState N:1 Script (current selection)
 UIState N:1 Directory (current selection)
 UIState N:1 ExecutionSession (current execution)
+UIState 1:1 BreadcrumbModel (navigation display)
 ```
 
 ## Data Flow Patterns
 
 ### Script Discovery Flow
 ```
-Configuration.ScriptDirectories → Directory.Scan() → Script.Validate() → Script.Ready
+Configuration.ScriptDirectories → Directory.Scan() → Script.Validate() → Lexer.ExtractMetadata() → Script.Ready
+```
+
+### Metadata Extraction Flow
+```
+Script.Path → Lexer.DetectType() → ShellLexer/PythonLexer.ExtractMetadata() → ScriptMetadata → Script.Metadata
 ```
 
 ### Execution Flow
