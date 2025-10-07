@@ -30,6 +30,7 @@ type UIConfig struct {
 	ShowHidden       bool          `mapstructure:"show_hidden" json:"show_hidden" yaml:"show_hidden"`
 	RefreshOnFocus   bool          `mapstructure:"refresh_on_focus" json:"refresh_on_focus" yaml:"refresh_on_focus"`
 	ConfirmOnExecute bool          `mapstructure:"confirm_on_execute" json:"confirm_on_execute" yaml:"confirm_on_execute"`
+	UseNerdFont      bool          `mapstructure:"use_nerd_font" json:"use_nerd_font" yaml:"use_nerd_font"`
 	Theme            ThemeConfig   `mapstructure:"theme" json:"theme" yaml:"theme"`
 	Layout           LayoutConfig  `mapstructure:"layout" json:"layout" yaml:"layout"`
 }
@@ -96,6 +97,7 @@ func NewDefaultConfig() *AppConfig {
 			ShowHidden:       false,
 			RefreshOnFocus:   true,
 			ConfirmOnExecute: false,
+			UseNerdFont:      true, // Default to true for best experience
 			Theme: ThemeConfig{
 				Primary:    "#7D56F4",
 				Secondary:  "#EE6FF8",

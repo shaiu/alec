@@ -9,6 +9,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/shaiu/alec/pkg/contracts"
+	"github.com/shaiu/alec/pkg/icon"
 )
 
 type ContentView int
@@ -126,20 +127,20 @@ func (m MainContentModel) View() string {
 }
 
 func (m MainContentModel) renderWelcome() string {
-	welcome := "🚀 Alec Script Runner\n\n" +
+	welcome := fmt.Sprintf("%s Alec Script Runner\n\n", icon.Current.Execute) +
 		"Welcome! Select a script from the sidebar to view details.\n\n" +
 		"Navigation:\n" +
-		"• ↑/↓ or k/j to navigate scripts\n" +
-		"• Enter to execute selected script\n" +
-		"• / or Ctrl+F to search & filter scripts\n" +
-		"• Esc to exit search mode\n" +
-		"• r to refresh script list\n" +
-		"• q or Ctrl+C to quit\n\n" +
-		"🔍 Search Features:\n" +
-		"• Real-time filtering as you type\n" +
-		"• Navigate results with ↑/↓ or j/k\n" +
-		"• Visual match highlighting\n" +
-		"• Contextual search within current folder\n\n" +
+		fmt.Sprintf("%s %s/%s or k/j to navigate scripts\n", icon.Current.Bullet, icon.Current.ArrowUp, icon.Current.ArrowDown) +
+		fmt.Sprintf("%s Enter to execute selected script\n", icon.Current.Bullet) +
+		fmt.Sprintf("%s / or Ctrl+F to search & filter scripts\n", icon.Current.Bullet) +
+		fmt.Sprintf("%s Esc to exit search mode\n", icon.Current.Bullet) +
+		fmt.Sprintf("%s r to refresh script list\n", icon.Current.Bullet) +
+		fmt.Sprintf("%s q or Ctrl+C to quit\n\n", icon.Current.Bullet) +
+		fmt.Sprintf("%s Search Features:\n", icon.Current.Search) +
+		fmt.Sprintf("%s Real-time filtering as you type\n", icon.Current.Bullet) +
+		fmt.Sprintf("%s Navigate results with %s/%s or j/k\n", icon.Current.Bullet, icon.Current.ArrowUp, icon.Current.ArrowDown) +
+		fmt.Sprintf("%s Visual match highlighting\n", icon.Current.Bullet) +
+		fmt.Sprintf("%s Contextual search within current folder\n\n", icon.Current.Bullet) +
 		"The selected script will run directly and the application will exit."
 	return m.style.Content.Render(welcome)
 }
@@ -152,21 +153,21 @@ func (m MainContentModel) renderScriptDetails() string {
 	var content strings.Builder
 
 	// Script header with icon
-	icon := m.getScriptIcon(m.selectedScript.Type)
-	title := m.style.Title.Render(fmt.Sprintf("%s %s", icon, m.selectedScript.Name))
+	scriptIcon := m.getScriptIcon(m.selectedScript.Type)
+	title := m.style.Title.Render(fmt.Sprintf("%s %s", scriptIcon, m.selectedScript.Name))
 	content.WriteString(title + "\n\n")
 
 	// Script information
-	content.WriteString("• " + m.style.Subtitle.Render("Type: ") + m.selectedScript.Type + "\n")
+	content.WriteString(icon.Current.Bullet + " " + m.style.Subtitle.Render("Type: ") + m.selectedScript.Type + "\n")
 
 	// Show interpreter if available from metadata
 	if m.selectedScript.Metadata != nil && m.selectedScript.Metadata.Interpreter != "" {
-		content.WriteString("• " + m.style.Subtitle.Render("Interpreter: ") + m.selectedScript.Metadata.Interpreter + "\n")
+		content.WriteString(icon.Current.Bullet + " " + m.style.Subtitle.Render("Interpreter: ") + m.selectedScript.Metadata.Interpreter + "\n")
 	}
 
 	// Get file info if available
 	if stat, err := os.Stat(m.selectedScript.Path); err == nil {
-		content.WriteString("• " + m.style.Subtitle.Render("Modified: ") + stat.ModTime().Format("2006-01-02 15:04:05") + "\n")
+		content.WriteString(icon.Current.Bullet + " " + m.style.Subtitle.Render("Modified: ") + stat.ModTime().Format("2006-01-02 15:04:05") + "\n")
 	}
 
 	content.WriteString("\n")
@@ -181,7 +182,7 @@ func (m MainContentModel) renderScriptDetails() string {
 	}
 
 	if description != "" {
-		content.WriteString("• " + m.style.Subtitle.Render("Description:") + "\n")
+		content.WriteString(icon.Current.Bullet + " " + m.style.Subtitle.Render("Description:") + "\n")
 		content.WriteString(m.style.Content.Render(description) + "\n\n")
 	}
 
@@ -198,7 +199,7 @@ func (m MainContentModel) renderScriptDetails() string {
 			previewTitle = "Full Script"
 		}
 
-		content.WriteString("• " + m.style.Subtitle.Render(previewTitle) + "\n\n")
+		content.WriteString(icon.Current.Bullet + " " + m.style.Subtitle.Render(previewTitle) + "\n\n")
 
 		// Limit preview to a conservative maximum to ensure execution instructions are always visible
 		// Be very aggressive here because lipgloss padding/styling adds significant height
@@ -242,7 +243,7 @@ func (m MainContentModel) renderScriptDetails() string {
 
 	// Execution instructions
 	content.WriteString(strings.Repeat("─", 50) + "\n")
-	instructions := m.style.Running.Render("⚡ Press Enter to execute this script")
+	instructions := m.style.Running.Render(fmt.Sprintf("%s Press Enter to execute this script", icon.Current.Lightning))
 	content.WriteString(instructions + "\n")
 	content.WriteString(m.style.Content.Render("The script will run and the application will exit."))
 

@@ -1,10 +1,12 @@
 package tui
 
 import (
+	"fmt"
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/shaiu/alec/pkg/icon"
 )
 
 type FooterModel struct {
@@ -58,7 +60,9 @@ func NewFooterModel() FooterModel {
 	}
 
 	return FooterModel{
-		helpText:    "↑/↓ navigate • Enter execute • / search • r refresh • q quit",
+		helpText:    fmt.Sprintf("%s/%s navigate %s Enter execute %s / search %s r refresh %s q quit",
+			icon.Current.ArrowUp, icon.Current.ArrowDown, icon.Current.Separator,
+			icon.Current.Separator, icon.Current.Separator, icon.Current.Separator),
 		status:      "Ready",
 		scriptCount: "",
 		currentPath: "",
@@ -219,9 +223,13 @@ func (m *FooterModel) ShowError(error string) {
 // ShowHelp toggles the display of extended help information
 func (m *FooterModel) ShowHelp(show bool) {
 	if show {
-		m.helpText = "Type to filter • ↑/↓ navigate • Enter execute • Esc exit search • r refresh • q quit"
+		m.helpText = fmt.Sprintf("Type to filter %s %s/%s navigate %s Enter execute %s Esc exit search %s r refresh %s q quit",
+			icon.Current.Separator, icon.Current.ArrowUp, icon.Current.ArrowDown,
+			icon.Current.Separator, icon.Current.Separator, icon.Current.Separator, icon.Current.Separator)
 	} else {
-		m.helpText = "↑/↓ navigate • Enter execute • / search • r refresh • q quit"
+		m.helpText = fmt.Sprintf("%s/%s navigate %s Enter execute %s / search %s r refresh %s q quit",
+			icon.Current.ArrowUp, icon.Current.ArrowDown, icon.Current.Separator,
+			icon.Current.Separator, icon.Current.Separator, icon.Current.Separator)
 	}
 }
 

@@ -10,6 +10,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/shaiu/alec/pkg/contracts"
+	"github.com/shaiu/alec/pkg/icon"
 	"github.com/shaiu/alec/pkg/services"
 )
 
@@ -45,6 +46,10 @@ type ScriptExecutionCompleteMsg struct {
 }
 
 func NewRootModel(registry *services.ServiceRegistry) *RootModel {
+	// Initialize icon set - default to Nerd Fonts enabled
+	// Users can disable via config: ui.use_nerd_font: false
+	icon.UseNerdFont()
+
 	sidebar := NewSidebarModel(registry.GetScriptDiscovery(), registry.GetConfigManager())
 	mainContent := NewMainContentModel(registry.GetConfigManager())
 
@@ -156,8 +161,10 @@ func (m *RootModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			cmds = append(cmds, cmd)
 			// Update footer and header for search mode
 			m.footer.ShowHelp(true)
-			m.footer.SetHelpText("Type to filter • ↑/↓/j/k navigate • Enter execute • Esc exit search")
-			m.header.SetStatus("🔍 Search Mode")
+			m.footer.SetHelpText(fmt.Sprintf("Type to filter %s %s/%s/j/k navigate %s Enter execute %s Esc exit search",
+				icon.Current.Separator, icon.Current.ArrowUp, icon.Current.ArrowDown,
+				icon.Current.Separator, icon.Current.Separator))
+			m.header.SetStatus(fmt.Sprintf("%s Search Mode", icon.Current.Search))
 		case "enter":
 			selectedScript := m.sidebar.GetSelectedScript()
 			if selectedScript != nil {

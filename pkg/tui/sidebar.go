@@ -12,6 +12,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/epilande/go-devicons"
 	"github.com/shaiu/alec/pkg/contracts"
+	"github.com/shaiu/alec/pkg/icon"
 	"github.com/shaiu/alec/pkg/services"
 )
 
@@ -400,7 +401,7 @@ func (m *SidebarModel) renderScripts(content *strings.Builder) {
 }
 
 func (m SidebarModel) formatScriptLine(script contracts.ScriptInfo, selected bool) string {
-	icon := m.getScriptIcon(script.Path)
+	scriptIcon := m.getScriptIcon(script.Path)
 	name := script.Name
 
 	// Calculate available space more conservatively
@@ -418,7 +419,7 @@ func (m SidebarModel) formatScriptLine(script contracts.ScriptInfo, selected boo
 		}
 	}
 
-	line := fmt.Sprintf("%s %s", icon, name)
+	line := fmt.Sprintf("%s %s", scriptIcon, name)
 
 	// Apply max width constraint to prevent overflow
 	lineStyle := m.style.Item
@@ -430,7 +431,7 @@ func (m SidebarModel) formatScriptLine(script contracts.ScriptInfo, selected boo
 }
 
 func (m SidebarModel) formatSearchScriptLine(script contracts.ScriptInfo, selected bool) string {
-	icon := m.getScriptIcon(script.Path)
+	scriptIcon := m.getScriptIcon(script.Path)
 	name := script.Name
 
 	// Calculate available space more conservatively
@@ -454,7 +455,7 @@ func (m SidebarModel) formatSearchScriptLine(script contracts.ScriptInfo, select
 		name = m.highlightSearchMatch(name, m.searchQuery)
 	}
 
-	line := fmt.Sprintf("%s %s", icon, name)
+	line := fmt.Sprintf("%s %s", scriptIcon, name)
 
 	// Apply max width constraint to prevent overflow
 	lineStyle := m.style.Item
@@ -961,21 +962,21 @@ func (m SidebarModel) buildNavigationItems(currentPath string) []NavigationItem 
 }
 
 func (m SidebarModel) formatNavigationItemLine(item NavigationItem, selected bool) string {
-	var icon string
+	var itemIcon string
 	var name string
 
 	if item.Type == NavigationItemDirectory {
 		if item.IsParent {
-			icon = "↑"
+			itemIcon = icon.Current.Parent
 			name = ".."
 		} else {
 			// Use devicons for folder icons
 			style := devicons.IconForPath(item.Path)
-			icon = style.Icon
+			itemIcon = style.Icon
 			name = item.Name
 		}
 	} else {
-		icon = m.getScriptIcon(item.Path)
+		itemIcon = m.getScriptIcon(item.Path)
 		name = item.Name
 	}
 
@@ -994,7 +995,7 @@ func (m SidebarModel) formatNavigationItemLine(item NavigationItem, selected boo
 		}
 	}
 
-	line := fmt.Sprintf("%s %s", icon, name)
+	line := fmt.Sprintf("%s %s", itemIcon, name)
 
 	// Apply max width constraint to prevent overflow
 	lineStyle := m.style.Item
