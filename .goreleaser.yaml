@@ -78,23 +78,25 @@ changelog:
     - title: Others
       order: 999
 
-brews:
-  - name: alec
-    repository:
-      owner: shaiu
-      name: homebrew-alec
-      token: "{{ .Env.GITHUB_TOKEN }}"
-    commit_author:
-      name: goreleaserbot
-      email: bot@goreleaser.com
-    homepage: "https://github.com/shaiu/alec"
-    description: "Terminal UI for organizing and executing scripts without CLI maintenance overhead"
-    license: "MIT"
-    directory: Formula
-    install: |
-      bin.install "alec"
-    test: |
-      system "#{bin}/alec", "--version"
+# Homebrew tap disabled until repository is created
+# To enable: create https://github.com/shaiu/homebrew-alec repository first
+# brews:
+#   - name: alec
+#     repository:
+#       owner: shaiu
+#       name: homebrew-alec
+#       token: "{{ .Env.GITHUB_TOKEN }}"
+#     commit_author:
+#       name: goreleaserbot
+#       email: bot@goreleaser.com
+#     homepage: "https://github.com/shaiu/alec"
+#     description: "Terminal UI for organizing and executing scripts without CLI maintenance overhead"
+#     license: "MIT"
+#     directory: Formula
+#     install: |
+#       bin.install "alec"
+#     test: |
+#       system "#{bin}/alec", "--version"
 
 release:
   github:
