@@ -1,6 +1,7 @@
 package tests
 
 import (
+	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -10,7 +11,18 @@ import (
 
 // TestParseRealScripts tests parsing of actual script files
 func TestParseRealScripts(t *testing.T) {
+	// Get the directory of this test file
+	cwd, err := os.Getwd()
+	if err != nil {
+		t.Fatalf("Failed to get working directory: %v", err)
+	}
+
+	// If we're in the tests directory, use relative path
+	// If we're in the repo root, use tests/fixtures/scripts
 	fixturesDir := "./fixtures/scripts"
+	if !strings.HasSuffix(cwd, "/tests") {
+		fixturesDir = "./tests/fixtures/scripts"
+	}
 
 	tests := []struct {
 		name           string
